@@ -1,7 +1,43 @@
-import graphene
-from graphql_auth import mutations
+import graphene #type: ignore
+from graphene_django.types import ErrorType
+from graphql import GraphQLError #type: ignore
+from graphql_auth import mutations #type: ignore
+from graphql_auth.decorators import login_required
+from graphql_auth.mixins import get_user_model #type: ignore
+from users.models import Staff, CustomUser
+from .types import StaffType
+
+User = get_user_model()
+
+class StaffCreateUpdateMutation(graphene.Mutation):
+    staff = graphene.Field(StaffType)
+    success = graphene.Boolean()
+    errors = graphene.List(ErrorType)
+
+    class Arguments:
+        user_email = graphene.String(
+            required=True,
+            description="The email of the user to be promoted to staff")
+        can_create_post = graphene.Boolean()
+
+
+    @classmethod
+    @login_required
+    def mutate(cls, root, info: graphene.ResolveInfo, **kwargs):
+        admin: CustomUser = info.context.user
+        if admin.is_staff:
+            try:
+                user = User.objects.get(email=kwargs.get('user_email'))
+                staff: Staff = Staff.objects.create(user=user, can_create_post=kwargs.get('can_create_post'))
+                staff.save()
+                return StaffCreateUpdateMutation(staff=staff, success=True)
+            except User.DoesNotExist:
+                raise GraphQLError('A user with the specified email does not exist')
+        else:
+            raise GraphQLError("You do not have permissions to alter the user")
 
 class AuthMutations(graphene.ObjectType):
+    create_update_staff = StaffCreateUpdateMutation.Field()
     register = mutations.Register.Field()
     verify_account = mutations.VerifyAccount.Field()
     resend_activation_email = mutations.ResendActivationEmail.Field()

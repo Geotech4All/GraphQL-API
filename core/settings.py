@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "graphene_django",
     "django_countries",
     'graphql_jwt.refresh_token.apps.RefreshTokenConfig',
+    "corsheaders",
 
     "users",
     "blog",
@@ -52,6 +53,7 @@ AUTH_USER_MODEL = 'users.CustomUser'
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -173,3 +175,4 @@ GRAPHQL_JWT = {
         "graphql_auth.mutations.VerifySecondaryEmail",
     ],
 }
+CORS_ALLOW_ALL_ORIGINS = True

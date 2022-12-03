@@ -1,16 +1,26 @@
-from django.db import models
+from django.db import models #type: ignore
 from typing import List, Any
-from django.utils import timezone
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, User
-from django.db.models.manager import BaseManager
-from django.utils.translation import gettext_lazy as _
+from django.utils import timezone #type: ignore
+from django.contrib.auth.models import ( #type: ignore
+    AbstractBaseUser,
+    BaseUserManager,
+    PermissionsMixin,
+    User)
+from django.db.models.manager import BaseManager #type: ignore
+from django.utils.translation import gettext_lazy as _ #type: ignore
 
 
 class UserManager(BaseUserManager):
     """
     Manager for the CustomUser model. Use this to perform actions on a CustomUser object.
     """
-    def _create_user(self, email: str, password: str, is_staff: bool, is_superuser: bool, **extra_fields):
+    def _create_user(
+            self,
+            email: str,
+            password: str,
+            is_staff: bool,
+            is_superuser: bool,
+            **extra_fields):
         if not email:
             raise ValueError('User must have an email address')
         now = timezone.now()
@@ -71,8 +81,10 @@ class Profile(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     image = models.ImageField(upload_to='images/profile_pics')
     about = models.TextField(max_length=500)
-
-    def __str__(self) -> str:
+def __str__(self) -> str:
         return f"{self.pk} - {self.user.email}"
 
 
+class Staff(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.PROTECT)
+    can_create_post = models.BooleanField(default=False)
