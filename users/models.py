@@ -1,0 +1,78 @@
+from django.db import models
+from typing import List, Any
+from django.utils import timezone
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, User
+from django.db.models.manager import BaseManager
+from django.utils.translation import gettext_lazy as _
+
+
+class UserManager(BaseUserManager):
+    """
+    Manager for the CustomUser model. Use this to perform actions on a CustomUser object.
+    """
+    def _create_user(self, email: str, password: str, is_staff: bool, is_superuser: bool, **extra_fields):
+        if not email:
+            raise ValueError('User must have an email address')
+        now = timezone.now()
+        email = self.normalize_email(email)
+        user: User = self.model(
+            email=email,
+            is_staff=is_staff,
+            is_active=True,
+            is_superuser=is_superuser,
+            last_login=now,
+            date_joined=now,
+            **extra_fields)
+        user.set_password(password)
+        user.save()
+        return user
+
+    def create_user(self, email: str, password: str, **extra_fields):
+        return self._create_user(email, password, False, False, **extra_fields)
+
+    def create_superuser(self, email:str, password: str, **extra_fields):
+        return self._create_user(email, password, True, True, **extra_fields)
+
+class CustomUser(AbstractBaseUser, PermissionsMixin):
+    """
+    Custom user model with email authentication
+    """
+    class UserCategory(models.TextChoices):
+        STUDENT = 'ST', _('Student')
+        LECTURER = 'LE', _('Lecturer')
+    first_name = models.CharField(max_length=255, null=True, blank=True)
+    last_name = models.CharField(max_length=255, null=True, blank=True)
+    email = models.EmailField(blank=False, max_length=255, unique=True, verbose_name='email address')
+    username = models.CharField(max_length=255, null=True, blank=True)
+    is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+    category = models.CharField(max_length=2, choices=UserCategory.choices, default=UserCategory.STUDENT)
+    last_login = models.DateTimeField(null=True, blank=True)
+    date_joined = models.DateTimeField(auto_now_add=True)
+    
+    USERNAME_FIELD = 'email'
+    EMAIL_FIELD = 'email'
+    REQUIRED_FIELDS: List[str] = []
+
+    objects: BaseManager[Any] = UserManager()
+
+    def get_absolute_url(self):
+        return f"/users/{self.pk}"
+
+    def __str__(self) -> str:
+        return f"{self.email}"
+
+
+class Profile(models.Model):
+    """
+    Contains extra information about a user
+    """
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='images/profile_pics')
+    about = models.TextField(max_length=500)
+
+    def __str__(self) -> str:
+        return f"{self.pk} - {self.user.email}"
+
+
