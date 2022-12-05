@@ -1,12 +1,17 @@
 import graphene #type: ignore
 from graphene_django import DjangoObjectType #type: ignore
 from blog.models import Post, Comment
+from users.graphql.types import UserType
  
 
 class CommentType(DjangoObjectType):
+    author = graphene.Field(UserType)
     class Meta:
         model = Comment
         fields = ("author", "post", "date_added")
+
+    def resolve_author(self, info):
+        return self.author
                     
                    
 class PostType(DjangoObjectType):

@@ -11,7 +11,7 @@ class Address(models.Model):
     This will mainly refer to the address of an organization or establishment,
     but can be used as a regular address as well.
     """
-    country = CountryField(blank_label='(select country)')
+    country = models.CharField(max_length=255)
     state = models.CharField(max_length=255)
     city = models.CharField(max_length=255)
     address = models.CharField(max_length=255)
