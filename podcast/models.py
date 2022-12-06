@@ -1,6 +1,5 @@
 from django.contrib.auth import get_user_model
 from django.db import models
-from django_countries.fields import CountryField
 
 from podcast.validators import FileValidator
 
@@ -37,6 +36,10 @@ class Organization(models.Model):
     def __str__(self) -> str:
         return f"{self.name}"
 
+    def get_logo_url(self):
+        if hasattr(self.logo, 'url'):
+            return self.logo.url
+        return None
 
 class Guest(models.Model):
     """
