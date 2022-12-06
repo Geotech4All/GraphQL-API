@@ -1,6 +1,6 @@
 import graphene
 from graphql import GraphQLError
-from podcast.models import Address, Organization
+from podcast.models import Address, Organization, Guest
 from users.models import Staff
 
 def validate_staff(info: graphene.ResolveInfo):
@@ -9,6 +9,28 @@ def validate_staff(info: graphene.ResolveInfo):
     except Staff.DoesNotExist:
         raise GraphQLError("You are not authorised to perform this action")
 
+
+def get_organization(organization_id: str | int) -> Organization:
+    try:
+        return Organization.objects.get(pk=organization_id)
+    except Organization.DoesNotExist:
+        raise GraphQLError("Organization with the specified `id` was not found")
+
+
+def get_address(address_id: str | int) -> Address:
+    try:
+        return Address.objects.get(pk=address_id)
+    except Address.DoesNotExist:
+        raise GraphQLError("Address with the specified `id` was not found")
+
+
+def get_guest(guest_id: str | int) -> Guest:
+    try:
+        return Guest.objects.get(pk=guest_id)
+    except Guest.DoesNotExist:
+        raise GraphQLError("Guest with the specified `id` was not found")
+
+
 def perform_address_update(info:graphene.ResolveInfo, **kwargs) -> Address:
     """
     Performs an update operation on address object.
@@ -16,18 +38,15 @@ def perform_address_update(info:graphene.ResolveInfo, **kwargs) -> Address:
     address_id = kwargs.get('address_id', None)
     if not address_id:
         raise GraphQLError("address_id is required")
-    try:
-        validate_staff(info)
-        address: Address = Address.objects.get(pk=address_id)
-        address.city = kwargs.get('city', address.city)
-        address.state = kwargs.get('state', address.state)
-        address.country = kwargs.get('country', address.country)
-        address.address = kwargs.get('address', address.address)
-        address.zip_code = kwargs.get('zip_code', address.zip_code)
-        address.save()
-        return address
-    except Address.DoesNotExist:
-        raise GraphQLError("Address with the specified `id` does not exist.")
+    validate_staff(info)
+    address: Address = get_address(address_id)
+    address.city = kwargs.get('city', address.city)
+    address.state = kwargs.get('state', address.state)
+    address.country = kwargs.get('country', address.country)
+    address.address = kwargs.get('address', address.address)
+    address.zip_code = kwargs.get('zip_code', address.zip_code)
+    address.save()
+    return address
 
 def perform_address_create(info:graphene.ResolveInfo, **kwargs) -> Address:
     """
@@ -43,11 +62,6 @@ def perform_address_create(info:graphene.ResolveInfo, **kwargs) -> Address:
         )
     return address
 
-def get_address(address_id: str | int) -> Address:
-    try:
-        return Address.objects.get(pk=address_id)
-    except Address.DoesNotExist:
-        raise GraphQLError("Address with the specified `id` was not found")
 
 def perform_organization_update(info:graphene.ResolveInfo, **kwargs) -> Organization:
     """
@@ -55,39 +69,68 @@ def perform_organization_update(info:graphene.ResolveInfo, **kwargs) -> Organiza
     """
     organization_id = kwargs.get('organization_id', None)
     address_id = str(kwargs.get('address_id'))
-    if organization_id:
-        try:
-            validate_staff(info)
-            organization: Organization = Organization.objects.get(pk=organization_id)
-            organization.name = kwargs.get('name')
-            organization.address = get_address(address_id) if address_id else organization.address
-            organization.description = kwargs.get('organization', organization.description)
-            organization.logo = kwargs.get('logo', organization.logo)
-            organization.email = kwargs.get('email', organization.email)    
-            organization.phone = kwargs.get('phone', organization.phone)    
-            organization.save()
-            return organization
-        except Organization.DoesNotExist:
-                raise GraphQLError("Organization with the specified `id` was not found")
-    else:
+    if not organization_id:
         raise GraphQLError("organization_id is required")
+    validate_staff(info)
+    organization: Organization = get_organization(organization_id)
+    organization.name = kwargs.get('name')
+    organization.address = get_address(address_id) if address_id else organization.address
+    organization.description = kwargs.get('description', organization.description)
+    organization.logo = kwargs.get('logo', organization.logo)
+    organization.email = kwargs.get('email', organization.email)    
+    organization.phone = kwargs.get('phone', organization.phone)    
+    organization.save()
+    return organization
+
 
 def perform_organization_create(info:graphene.ResolveInfo, **kwargs) -> Organization:
     """
     Performs create operation on organization object.
     """
     address_id = str(kwargs.get('address_id'))
-    try:
-        validate_staff(info)
-        organization: Organization = Organization.objects.get(pk=organization_id)
-        organization.name = kwargs.get('name')
-        organization.address = get_address(address_id) if address_id else organization.address
-        organization.description = kwargs.get('organization', organization.description)
-        organization.logo = kwargs.get('logo', organization.logo)
-        organization.email = kwargs.get('email', organization.email)    
-        organization.phone = kwargs.get('phone', organization.phone)    
-        organization.save()
-        return organization
-    except Organization.DoesNotExist:
-            raise GraphQLError("Organization with the specified `id` was not found")
+    validate_staff(info)
+    organization: Organization = Organization.objects.create(
+        name = kwargs.get('name'),
+        address = get_address(address_id) if address_id else None,
+        description = kwargs.get('description'),
+        logo = kwargs.get('logo'),
+        email = kwargs.get('email'),
+        phone = kwargs.get('phone')
+    )
+    return organization
 
+
+def perform_guest_update(info:graphene.ResolveInfo, **kwargs) -> Guest:
+    """
+    Performs update operation on guest object.
+    """
+    validate_staff(info)
+
+    guest_id = kwargs.get("guest_id")
+    organization_id = kwargs.get("organization_id")
+
+    if not guest_id:
+        raise GraphQLError("guest_id is required")
+
+    guest = get_guest(guest_id)
+    guest.name = kwargs.get("name", guest.name)
+    guest.description = kwargs.get("description", guest.description)
+    guest.organization = get_organization(organization_id) if organization_id else guest.organization
+    guest.save()
+    return guest
+
+
+def perform_guest_create(info:graphene.ResolveInfo, **kwargs) -> Guest:
+    """
+    Performs create operation on guest object.
+    """
+
+    validate_staff(info)
+    organization_id = kwargs.get("organization_id")
+
+    guest = Guest.objects.create(
+        name=kwargs.get("name"),
+        description=kwargs.get("description"),
+        organization=get_organization(organization_id) if organization_id else None
+        )
+    return guest

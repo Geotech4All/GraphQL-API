@@ -2,8 +2,8 @@ import graphene
 from graphene_django.types import ErrorType
 from graphene_file_upload.scalars import Upload
 from graphql_auth.decorators import login_required
-from .types import OrganizationType, AddressNode
-from .utils import perform_address_create, perform_address_update, perform_organization_update
+from .types import OrganizationType, AddressNode, GuestType
+from .utils import perform_address_create, perform_address_update, perform_guest_create, perform_guest_update, perform_organization_create, perform_organization_update
 
 
 class AddressCreateUpdateMutation(graphene.Mutation):
@@ -60,8 +60,38 @@ class OrganizationCreateUpdateMutation(graphene.Mutation):
         if organization_id:
             organization = perform_organization_update(info, **kwargs)
             return OrganizationCreateUpdateMutation(success=True, organization=organization)
-        pass
+        organization = perform_organization_create(info, **kwargs)
+        return OrganizationCreateUpdateMutation(success=True, organization=organization)
+
+
+class GuestCreateUpdateMutation(graphene.Mutation):
+    """
+    Performs create and update actions on a `Guest` object.
+    To perform an update all you need to do is pass in the guest `id`.
+    """
+    success = graphene.Boolean()
+    errors = graphene.List(ErrorType)
+    guest = graphene.Field(GuestType)
+
+    class Arguments:
+        guest_id = graphene.ID(
+            description="Pass this if you want to perform an update on a guest")
+        name = graphene.String(required=True)
+        description = graphene.String()
+        organization_id = graphene.ID()
+
+    @classmethod
+    @login_required
+    def mutate(cls, root, info: graphene.ResolveInfo, **kwargs):
+        guest_id = kwargs.get('guest_id')
+        if guest_id:
+            guest = perform_guest_update(info, **kwargs)
+            return GuestCreateUpdateMutation(success=True, guest=guest)
+        guest = perform_guest_create(info, **kwargs)
+        return GuestCreateUpdateMutation(success=True, gurst=guest)
 
 
 class PodcastMutations(graphene.ObjectType):
     create_update_address = AddressCreateUpdateMutation.Field()
+    create_update_organization = OrganizationCreateUpdateMutation.Field()
+    create_update_guest = GuestCreateUpdateMutation.Field()

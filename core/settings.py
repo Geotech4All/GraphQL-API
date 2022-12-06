@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -159,6 +160,8 @@ AUTHENTICATION_BACKENDS = [
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 GRAPHQL_JWT = {
     "JWT_VERIFY_EXPIRATION": True,
+    "JWT_EXPIRATION_DELTA": timedelta(minutes=10),
+    "JWT_REFRESH_EXPIRATION_DELTA": timedelta(days=7),
 
     # optional
     "JWT_LONG_RUNNING_REFRESH_TOKEN": True,

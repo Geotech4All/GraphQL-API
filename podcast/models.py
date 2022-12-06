@@ -28,8 +28,8 @@ class Organization(models.Model):
     """
     name = models.CharField(max_length=255)
     address = models.ForeignKey(Address, on_delete=models.PROTECT)
-    description = models.CharField(max_length=400)
-    logo = models.ImageField(upload_to="images/organizations")
+    description = models.CharField(max_length=400, null=True)
+    logo = models.ImageField(upload_to="images/organizations", null=True)
     email = models.EmailField(null=True, blank=True, max_length=255)
     phone = models.CharField(max_length=20, null=True, blank=True)
 
