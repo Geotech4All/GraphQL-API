@@ -1,13 +1,23 @@
+from django.contrib.auth import get_user_model
 import graphene
 from graphql import GraphQLError
-from podcast.models import Address, Organization, Guest
-from users.models import Staff
+from podcast.models import Address, EventImage, Organization, Guest, Podcast
+from users.models import CustomUser, Staff
+
+User = get_user_model()
 
 def validate_staff(info: graphene.ResolveInfo):
     try:
         Staff.objects.get(user=info.context.user)
     except Staff.DoesNotExist:
         raise GraphQLError("You are not authorised to perform this action")
+
+
+def get_user(user_id: str | int) -> CustomUser:
+    try:
+        return User.objects.get(pk=user_id)
+    except User.DoesNotExist:
+        raise GraphQLError("User with the specified `id` was not found")
 
 
 def get_organization(organization_id: str | int) -> Organization:
@@ -30,6 +40,19 @@ def get_guest(guest_id: str | int) -> Guest:
     except Guest.DoesNotExist:
         raise GraphQLError("Guest with the specified `id` was not found")
 
+
+def get_podcast(podcast_id: str | int) -> Podcast:
+    try:
+        return Podcast.objects.get(pk=podcast_id)
+    except Podcast.DoesNotExist:
+        raise GraphQLError("Podcast with the specified `id` was not found")
+
+
+def get_event_image(event_image_id: str | int) -> EventImage:
+    try:
+        return EventImage.objects.get(pk=event_image_id)
+    except EventImage.DoesNotExist:
+        raise GraphQLError("EventImage with the specified `id` was not found")
 
 def perform_address_update(info:graphene.ResolveInfo, **kwargs) -> Address:
     """
@@ -134,3 +157,69 @@ def perform_guest_create(info:graphene.ResolveInfo, **kwargs) -> Guest:
         organization=get_organization(organization_id) if organization_id else None
         )
     return guest
+
+
+def perform_podcast_update(info: graphene.ResolveInfo, **kwargs) -> Podcast:
+    """
+    Performs update operation on Podcast
+    """
+    validate_staff(info)
+    podcast_id = kwargs.get("podcast_id")
+    host_id = kwargs.get("host_id")
+    guest_id = kwargs.get("guest_id")
+    if not podcast_id:
+        raise GraphQLError("podcast_id is required")
+    if not host_id:
+        raise GraphQLError("host_id is required")
+    podcast = get_podcast(podcast_id)
+    podcast.host = get_user(host_id)
+    podcast.title = kwargs.get("title", podcast.title)
+    podcast.description = kwargs.get("description", podcast.description)
+    podcast.guest = get_guest(guest_id) if guest_id else podcast.guest
+    podcast.audio = kwargs.get("audio", podcast.audio)
+    podcast.save()
+    return podcast
+
+
+def perform_podcast_create(info: graphene.ResolveInfo, **kwargs) -> Podcast:
+    """
+    Performs create operation on Podcast
+    """
+    validate_staff(info)
+    host_id = kwargs.get("host_id")
+    guest_id = kwargs.get("guest_id")
+    if not host_id:
+        raise GraphQLError("host_id is required")
+    podcast = Podcast.objects.create(
+        host=get_user(host_id),
+        title=kwargs.get("title"),
+        description=kwargs.get("description"),
+        audio=kwargs.get("audio"),
+        guest=get_guest(guest_id) if guest_id else None
+        )
+    return podcast
+
+def perform_event_image_update(info: graphene.ResolveInfo, **kwargs) -> EventImage:
+    """
+    Performs update operation on EventImage.
+    """
+    validate_staff(info)
+    event_image_id = kwargs.get("event_image_id")
+    if not event_image_id:
+        raise GraphQLError("event_image_id is required")
+    event_image = get_event_image(event_image_id)
+    event_image.image = kwargs.get("image", event_image.image)
+    event_image.description = kwargs.get("description", event_image.description)
+    event_image.save()
+    return event_image
+
+
+def perform_event_image_create(info: graphene.ResolveInfo, **kwargs) -> EventImage:
+    """
+    Performs create operation on EventImage.
+    """
+    validate_staff(info)
+    event_image = EventImage.objects.create(
+        image=kwargs.get("image"),
+        description=kwargs.get("description"))
+    return event_image

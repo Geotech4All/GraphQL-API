@@ -58,12 +58,18 @@ class Podcast(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(max_length=500, help_text="short summary of this podcast")
     host = models.ForeignKey(User, on_delete=models.PROTECT)
-    guest = models.ForeignKey(Guest, on_delete=models.PROTECT)
-    audio = models.FileField(validators=[validate_file])
+    guest = models.ForeignKey(Guest, on_delete=models.PROTECT, null=True, blank=True)
+    audio = models.FileField(validators=[validate_file], null=True, blank=True)
     date_added = models.DateTimeField(auto_now_add=True)
+    last_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self) -> str:
         return f"{self.pk} - {self.title}"
+
+    def get_audio_url(self):
+        if hasattr(self.audio, 'url'):
+            return self.audio.url
+        return None
 
 
 class EventImage(models.Model):
@@ -72,6 +78,11 @@ class EventImage(models.Model):
 
     def __str__(self) -> str:
         return f"{self.pk} - Image:{self.description}"
+
+    def get_image_url(self):
+        if hasattr(self.image, 'url'):
+            return self.image.url
+        return None
 
 
 class Event(models.Model):

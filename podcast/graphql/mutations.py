@@ -2,8 +2,8 @@ import graphene
 from graphene_django.types import ErrorType
 from graphene_file_upload.scalars import Upload
 from graphql_auth.decorators import login_required
-from .types import OrganizationType, AddressNode, GuestType
-from .utils import perform_address_create, perform_address_update, perform_guest_create, perform_guest_update, perform_organization_create, perform_organization_update
+from .types import EventImageType, OrganizationType, AddressNode, GuestType, PodcastType
+from .utils import perform_address_create, perform_address_update, perform_event_image_create, perform_event_image_update, perform_guest_create, perform_guest_update, perform_organization_create, perform_organization_update, perform_podcast_create, perform_podcast_update
 
 
 class AddressCreateUpdateMutation(graphene.Mutation):
@@ -88,10 +88,72 @@ class GuestCreateUpdateMutation(graphene.Mutation):
             guest = perform_guest_update(info, **kwargs)
             return GuestCreateUpdateMutation(success=True, guest=guest)
         guest = perform_guest_create(info, **kwargs)
-        return GuestCreateUpdateMutation(success=True, gurst=guest)
+        return GuestCreateUpdateMutation(success=True, guest=guest)
+
+
+class PodcastCreateUpdateMutation(graphene.Mutation):
+    """
+    Performs create and update activity on `Podcast` object.
+    To perform an update, all you need to do is pass the podcast `id`.
+    """
+    success = graphene.Boolean()
+    errors = graphene.List(ErrorType)
+    podcast = graphene.Field(PodcastType)
+
+    class Arguments:
+        podcast_id = graphene.ID(
+            description="The `id` of the podcast you want to update")
+        title = graphene.String(required=True)
+        description = graphene.String(required=True)
+        host_id = graphene.ID(
+            required=True,
+            description="The `id` of the host `User` object")
+        guest_id = graphene.ID(
+            description="This might not be required since not all podcasts have a guest")
+        audio = Upload()
+
+
+    @classmethod
+    @login_required
+    def mutate(cls, root, info: graphene.ResolveInfo, **kwargs):
+        podcast_id = kwargs.get("podcast_id")
+        if podcast_id:
+            podcast = perform_podcast_update(info, **kwargs)
+            return PodcastCreateUpdateMutation(success=True, podcast=podcast)
+        podcast = perform_podcast_create(info, **kwargs)
+        return PodcastCreateUpdateMutation(success=True, podcast=podcast)
+
+
+class EventImageCreateUpdateMutation(graphene.Mutation):
+    """
+    Perform create and update actions for an event image.
+    To perform an update all you need to do is pass in the event image `id`.
+    """
+    success = graphene.Boolean()
+    errors = graphene.List(ErrorType)
+    event_image = graphene.Field(EventImageType)
+
+    class Arguments:
+        event_image_id = graphene.ID(
+            description="The `id` of the event image to be updated")
+        image = Upload()
+        description = graphene.String()
+
+    @classmethod
+    @login_required
+    def mutate(cls, root, info: graphene.ResolveInfo, **kwargs):
+        event_image_id = kwargs.get("event_image_id")
+        if event_image_id:
+            event_image = perform_event_image_update(info, **kwargs)
+            return EventImageCreateUpdateMutation(success=True, event_image=event_image)
+        event_image = perform_event_image_create(info, **kwargs)
+        return EventImageCreateUpdateMutation(success=True, event_image=event_image)
+
 
 
 class PodcastMutations(graphene.ObjectType):
     create_update_address = AddressCreateUpdateMutation.Field()
     create_update_organization = OrganizationCreateUpdateMutation.Field()
     create_update_guest = GuestCreateUpdateMutation.Field()
+    create_update_podcast = PodcastCreateUpdateMutation.Field()
+    create_update_event_image = EventImageCreateUpdateMutation.Field()
