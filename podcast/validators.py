@@ -1,4 +1,4 @@
-from typing import Any, Literal, Tuple
+from typing import Any
 from django.core.exceptions import ValidationError
 import magic
 from django.utils.deconstruct import deconstructible
