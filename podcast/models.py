@@ -1,8 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 
-# from podcast.validators import FileValidator
-
 User = get_user_model()
 
 class Address(models.Model):
@@ -52,14 +50,12 @@ class Guest(models.Model):
     def __str__(self) -> str:
         return f"{self.pk} - {self.name}"
 
-# validate_file = FileValidator(content_types=('audio/x-mp3', 'audio/mp4', 'audio/mpeg', 'application/ogg', 'audio/x-mp2'))
 
 class Podcast(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(max_length=500, help_text="short summary of this podcast")
     host = models.ForeignKey(User, on_delete=models.PROTECT)
     guest = models.ForeignKey(Guest, on_delete=models.PROTECT, null=True, blank=True)
-    # audio = models.FileField(upload_to="uploads/podcast", validators=[validate_file], null=True, blank=True)
     audio = models.FileField(upload_to="uploads/podcast", null=True, blank=True)
     date_added = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
