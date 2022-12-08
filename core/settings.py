@@ -28,7 +28,7 @@ SECRET_KEY = "django-insecure-b3vqc3*78z+dtv49j8)ttvu8^ztle**l008%@=$la_4u*435h1
 DEBUG = config("DEBUG") == "True"
 
 # ALLOWED_HOSTS = []
-ALLOWED_HOST = [
+ALLOWED_HOSTS = [
     "*",
     "graphql-api-production-4532.up.railway.app",
 ]
