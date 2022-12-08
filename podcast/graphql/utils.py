@@ -1,7 +1,14 @@
 from django.contrib.auth import get_user_model
 import graphene
 from graphql import GraphQLError
-from podcast.models import Address, EventImage, Organization, Guest, Podcast
+from podcast.models import (
+    Address,
+    Event,
+    EventImage,
+    Organization,
+    Guest,
+    Podcast,
+    Opportuinity)
 from users.models import CustomUser, Staff
 
 User = get_user_model()
@@ -53,6 +60,21 @@ def get_event_image(event_image_id: str | int) -> EventImage:
         return EventImage.objects.get(pk=event_image_id)
     except EventImage.DoesNotExist:
         raise GraphQLError("EventImage with the specified `id` was not found")
+
+
+def get_event(event_id: str | int) -> Event:
+    try:
+        return Event.objects.get(pk=event_id)
+    except Event.DoesNotExist:
+        raise GraphQLError("Event with the specified `id` was not found")
+
+
+def get_opportunity(opportunity_id: str | int) -> Opportuinity:
+    try:
+        return Opportuinity.objects.get(pk=opportunity_id)
+    except Opportuinity.DoesNotExist:
+        raise GraphQLError("Opportuinity with the specified `id` was not found")
+
 
 def perform_address_update(info:graphene.ResolveInfo, **kwargs) -> Address:
     """
@@ -199,17 +221,59 @@ def perform_podcast_create(info: graphene.ResolveInfo, **kwargs) -> Podcast:
         )
     return podcast
 
+
+def perform_event_update(info: graphene.ResolveInfo, **kwargs) -> Event:
+    """
+    Performs update operation on Event.
+    """
+    validate_staff(info)
+    event_id = kwargs.get("event_id")
+    organizer_id = kwargs.get("organizer_id")
+    address_id = kwargs.get("address_id")
+    if not event_id:
+        raise GraphQLError("event_id is required")
+    event = get_event(event_id)
+    event.title = kwargs.get("title", event.title)
+    event.description = kwargs.get("description", event.description)
+    event.date = kwargs.get("date", event.date)
+    event.organizer = get_organization(organizer_id) if organizer_id else event.organizer
+    event.venue = get_address(address_id) if address_id else event.venue
+    event.save()
+    return event
+
+
+def perform_event_create(info: graphene.ResolveInfo, **kwargs) -> Event:
+    """
+    Performs create operation on Event.
+    """
+    validate_staff(info)
+    organizer_id = kwargs.get("organizer_id")
+    address_id = kwargs.get("address_id")
+    event = Event.objects.create(
+        title=kwargs.get("title"),
+        description=kwargs.get("description"),
+        date=kwargs.get("date"),
+        organizer=get_organization(organizer_id) if organizer_id else None,
+        venue=get_address(address_id) if address_id else None
+        )
+    return event
+
+
 def perform_event_image_update(info: graphene.ResolveInfo, **kwargs) -> EventImage:
     """
     Performs update operation on EventImage.
     """
     validate_staff(info)
+    event_id = kwargs.get("event_id")
     event_image_id = kwargs.get("event_image_id")
     if not event_image_id:
         raise GraphQLError("event_image_id is required")
+    if not event_id:
+        raise GraphQLError("event_id is required")
     event_image = get_event_image(event_image_id)
     event_image.image = kwargs.get("image", event_image.image)
     event_image.description = kwargs.get("description", event_image.description)
+    event_image.event = get_event(event_id)
     event_image.save()
     return event_image
 
@@ -219,7 +283,46 @@ def perform_event_image_create(info: graphene.ResolveInfo, **kwargs) -> EventIma
     Performs create operation on EventImage.
     """
     validate_staff(info)
+    event_id = kwargs.get("event_id")
+    if not event_id:
+        raise GraphQLError("event_id is required")
     event_image = EventImage.objects.create(
         image=kwargs.get("image"),
+        event=get_event(event_id),
         description=kwargs.get("description"))
     return event_image
+
+
+def perform_opportunity_update(info: graphene.ResolveInfo, **kwargs) -> Opportuinity:
+    """
+    Performs update operation on an Opportuinity.
+    """
+    validate_staff(info)
+    opportunity_id = kwargs.get("opportunity_id")
+    organization_id = kwargs.get("organization_id")
+    if not opportunity_id:
+        raise GraphQLError("oportunity_id is required")
+    opportunity = get_opportunity(opportunity_id)
+    opportunity.title = kwargs.get("title", opportunity.title)
+    opportunity.description = kwargs.get("description", opportunity.description)
+    opportunity.start_date = kwargs.get("start_date", opportunity.start_date)
+    opportunity.deadline = kwargs.get("deadline")
+    opportunity.organization = get_organization(organization_id) if organization_id else opportunity.organization
+    opportunity.save()
+    return opportunity
+
+
+def perform_opportunity_create(info: graphene.ResolveInfo, **kwargs) -> Opportuinity:
+    """
+    Performs create operation on an Opportuinity.
+    """
+    validate_staff(info)
+    organization_id = kwargs.get("organization_id")
+    opportunity = Opportuinity.objects.create(
+        title=kwargs.get("title"),
+        description=kwargs.get("description"),
+        start_date=kwargs.get("start_date"),
+        deadline=kwargs.get("deadline"),
+        organization=get_organization(organization_id) if organization_id else None
+        )
+    return opportunity

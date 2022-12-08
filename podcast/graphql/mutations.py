@@ -2,9 +2,29 @@ import graphene
 from graphene_django.types import ErrorType
 from graphene_file_upload.scalars import Upload
 from graphql_auth.decorators import login_required
-from .types import EventImageType, OrganizationType, AddressNode, GuestType, PodcastType
-from .utils import perform_address_create, perform_address_update, perform_event_image_create, perform_event_image_update, perform_guest_create, perform_guest_update, perform_organization_create, perform_organization_update, perform_podcast_create, perform_podcast_update
-
+from .types import (
+    EventImageType,
+    EventType,
+    OpportunityType,
+    OrganizationType,
+    AddressNode,
+    GuestType,
+    PodcastType)
+from .utils import (
+    perform_address_create,
+    perform_address_update,
+    perform_event_create,
+    perform_event_image_create,
+    perform_event_image_update,
+    perform_event_update,
+    perform_guest_create,
+    perform_guest_update,
+    perform_opportunity_create,
+    perform_opportunity_update,
+    perform_organization_create,
+    perform_organization_update,
+    perform_podcast_create,
+    perform_podcast_update)
 
 class AddressCreateUpdateMutation(graphene.Mutation):
     """
@@ -124,9 +144,40 @@ class PodcastCreateUpdateMutation(graphene.Mutation):
         return PodcastCreateUpdateMutation(success=True, podcast=podcast)
 
 
+class EventCreateUpdateMutation(graphene.Mutation):
+    """
+    Performs create and update actions for an event.
+    To perform an update all you need to do is pass in the event `id`.
+    """
+    success = graphene.Boolean()
+    errors = graphene.List(ErrorType)
+    event = graphene.Field(EventType)
+
+    class Arguments:
+        event_id = graphene.ID(
+            description="The `id` of the Event to be updated")
+        organizer_id = graphene.ID(
+            description="If this event is being handled by an organization, pass its `id`")
+        title = graphene.String(required=True)
+        description = graphene.String(required=True)
+        date = graphene.Date()
+        address_id = graphene.ID(
+            description="If this event has an address of type Address pass its `id`")
+
+    @classmethod
+    @login_required
+    def mutate(cls, root, info: graphene.ResolveInfo, **kwargs):
+        event_id = kwargs.get("event_id")
+        if event_id:
+            event = perform_event_update(info, **kwargs)
+            return EventCreateUpdateMutation(success=True, event=event)
+        event = perform_event_create(info, **kwargs)
+        return EventCreateUpdateMutation(success=True, event=event)
+
+
 class EventImageCreateUpdateMutation(graphene.Mutation):
     """
-    Perform create and update actions for an event image.
+    Performs create and update actions for an event image.
     To perform an update all you need to do is pass in the event image `id`.
     """
     success = graphene.Boolean()
@@ -134,6 +185,9 @@ class EventImageCreateUpdateMutation(graphene.Mutation):
     event_image = graphene.Field(EventImageType)
 
     class Arguments:
+        event_id = graphene.ID(
+            required=True,
+            description="The `id` of the Event to which this image belongs")
         event_image_id = graphene.ID(
             description="The `id` of the event image to be updated")
         image = Upload()
@@ -150,10 +204,41 @@ class EventImageCreateUpdateMutation(graphene.Mutation):
         return EventImageCreateUpdateMutation(success=True, event_image=event_image)
 
 
+class OpportunityCreateUpdateMutation(graphene.Mutation):
+    """
+    Performs create and update actions for an organization.
+    To perform an update all you need to do is pass in the opportunity `id`.
+    """
+    success = graphene.Boolean()
+    errors = graphene.List(ErrorType)
+    opportunity = graphene.Field(OpportunityType)
+
+    class Arguments:
+        opportunity_id = graphene.ID(
+            description="The `id` of the opportunity you want to update.")
+        title = graphene.String(required=True)
+        description = graphene.String(required=True)
+        organization_id = graphene.ID(
+            description="if this opportunity is sponsored by an organization, pass its `id` here")
+        start_date = graphene.Date()
+        deadline = graphene.Date()
+
+    @classmethod
+    @login_required
+    def mutate(cls, root, info: graphene.ResolveInfo, **kwargs):
+        opportunity_id = kwargs.get("opportunity_id")
+        if opportunity_id:
+            opportunity = perform_opportunity_update(info, **kwargs)
+            return OpportunityCreateUpdateMutation(success=True, opportunity=opportunity)
+        opportunity = perform_opportunity_create(info, **kwargs)
+        return OpportunityCreateUpdateMutation(success=True, opportunity=opportunity)
+
 
 class PodcastMutations(graphene.ObjectType):
     create_update_address = AddressCreateUpdateMutation.Field()
     create_update_organization = OrganizationCreateUpdateMutation.Field()
     create_update_guest = GuestCreateUpdateMutation.Field()
     create_update_podcast = PodcastCreateUpdateMutation.Field()
+    create_update_event = EventCreateUpdateMutation.Field()
     create_update_event_image = EventImageCreateUpdateMutation.Field()
+    create_and_update_opportunity = OpportunityCreateUpdateMutation.Field()

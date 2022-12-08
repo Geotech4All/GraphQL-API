@@ -1,6 +1,6 @@
 import graphene
 from graphene_django import DjangoObjectType
-from podcast.models import Address, EventImage, Organization, Guest, Podcast
+from podcast.models import Address, Event, EventImage, Opportuinity, Organization, Guest, Podcast
 
 
 class AddressNode(DjangoObjectType):
@@ -60,6 +60,15 @@ class PodcastType(DjangoObjectType):
         return None
 
 
+class EventType(DjangoObjectType):
+    """
+    Event graphql object type
+    """
+    class Meta:
+        model = Event
+        fields = ("id", "organizer", "title", "description", "date", "venue")
+
+
 class EventImageType(DjangoObjectType):
     """
     EventImage graphql object type
@@ -67,9 +76,18 @@ class EventImageType(DjangoObjectType):
     image = graphene.String()
     class Meta:
         model = EventImage
-        fields = ("id", "description")
+        fields = ("id", "description", "event")
 
     def resolve_image(self, info: graphene.ResolveInfo):
         if isinstance(self, EventImage):
             return self.get_image_url()
         return None
+
+
+class OpportunityType(DjangoObjectType):
+    """
+    Oportunity graphql object type
+    """
+    class Meta:
+        model = Opportuinity
+        fields = ("id", "title", "description", "start_date", "deadline", "organization")
