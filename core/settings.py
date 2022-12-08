@@ -25,10 +25,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-b3vqc3*78z+dtv49j8)ttvu8^ztle**l008%@=$la_4u*435h1"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config("DEBUG") == "True"
 
 # ALLOWED_HOSTS = []
-ALLOWED_HOST = ['*']
+ALLOWED_HOST = [
+    "*",
+    "graphql-api-production-4532.up.railway.app",
+]
 
 # Application definition
 
