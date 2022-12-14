@@ -74,9 +74,9 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def __str__(self) -> str:
         return f"{self.email}"
 
-    def save(self):
+    def save(self, *args, **kwargs):
         self.full_name = f"{self.first_name} {self.last_name}"
-        return super(CustomUser, self).save()
+        return super(CustomUser, self).save(*args, **kwargs)
 
 
 class Profile(models.Model):
