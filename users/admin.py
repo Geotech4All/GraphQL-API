@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import CustomUser as User
+from .models import CustomUser as User, Profile, Staff
 
 
 class UserAdmin(BaseUserAdmin):
@@ -31,3 +31,6 @@ class UserAdmin(BaseUserAdmin):
     filter_horizontal = ('groups', 'user_permissions')
 
 admin.site.register(User, UserAdmin)
+
+admin.site.register(Staff)
+admin.site.register(Profile)
