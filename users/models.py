@@ -93,3 +93,6 @@ def __str__(self) -> str:
 class Staff(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.PROTECT)
     can_create_post = models.BooleanField(default=False)
+
+    def __str__(self) -> str:
+        return self.user.email
