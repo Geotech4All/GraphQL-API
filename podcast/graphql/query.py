@@ -1,10 +1,11 @@
 import graphene
 from graphql.error import GraphQLError
+from graphql_auth.schema import DjangoFilterConnectionField
 from podcast.graphql.types import AddressNode, EventImageType, GuestType, PodcastType
 from podcast.models import Address, EventImage, Guest, Podcast
 
 class PodcastQuery(graphene.ObjectType):
-    all_podcasts = graphene.List(PodcastType)
+    all_podcasts = DjangoFilterConnectionField(PodcastType)
     all_event_images = graphene.List(EventImageType)
     get_guest_by_id = graphene.Field(
         GuestType,
@@ -12,7 +13,6 @@ class PodcastQuery(graphene.ObjectType):
     get_address_by_id = graphene.Field(
         AddressNode,
         address_id=graphene.ID(required=True))
-
 
     def resolve_all_podcasts(root, info, **kwargs):
         return Podcast.objects.all()

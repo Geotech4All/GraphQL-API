@@ -52,6 +52,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         LECTURER = 'LE', _('Lecturer')
     first_name = models.CharField(max_length=255, null=True, blank=True)
     last_name = models.CharField(max_length=255, null=True, blank=True)
+    full_name = models.CharField(max_length=255, null=True, blank=True)
     email = models.EmailField(blank=False, max_length=255, unique=True, verbose_name='email address')
     username = models.CharField(max_length=255, null=True, blank=True)
     is_staff = models.BooleanField(default=False)
@@ -72,6 +73,10 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self) -> str:
         return f"{self.email}"
+
+    def save(self):
+        self.full_name = f"{self.first_name} {self.last_name}"
+        return super(CustomUser, self).save()
 
 
 class Profile(models.Model):

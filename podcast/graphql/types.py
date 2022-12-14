@@ -48,17 +48,28 @@ class PodcastType(DjangoObjectType):
     """
     Podcast graphql object type
     """
+    podcast_id = graphene.ID()
     audio = graphene.String()
     class Meta:
         model = Podcast
-        fields = ("id", "title", "description", "host", "guest", "audio", "date_added", "last_updated")
+        fields = ("title", "host", "description", "audio", "guest", "date_added", "last_updated")
+        filter_fields = {
+            "id": ["exact"],
+            "title": ["icontains", "istartswith", "exact"],
+            "host__full_name": ["icontains", "istartswith", "exact"]
+        }
+        interfaces = (graphene.relay.Node, )
 
 
-    def resolve_audio(self, info: graphene.ResolveInfo):
+    def resolve_audio(self, _):
         if isinstance(self, Podcast):
             return self.get_audio_url()
         return None
 
+    def resolve_podcast_id(self, _):
+        if isinstance(self, Podcast):
+            return getattr(self, "id")
+        return None
 
 class EventType(DjangoObjectType):
     """

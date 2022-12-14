@@ -60,6 +60,9 @@ class Podcast(models.Model):
     date_added = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        ordering = ["date_added", "last_updated"]
+
     def __str__(self) -> str:
         return f"{self.pk} - {self.title}"
 
