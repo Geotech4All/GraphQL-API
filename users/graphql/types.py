@@ -10,12 +10,19 @@ class UserType(DjangoObjectType):
 
 class StaffType(DjangoObjectType):
     user = graphene.Field(UserType)
+    staff_id = graphene.ID()
     class Meta:
         model = Staff
         fields = ('id', 'user', 'can_create_post')
+        interfaces = (graphene.relay.Node, )
 
 
     def resolve_user(self, _):
         if isinstance(self, Staff):
             return self.user
+        return None
+
+    def resolve_staff_id(self, _):
+        if isinstance(self, Staff):
+            return self.pk
         return None
