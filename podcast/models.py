@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from cloudinary_storage.storage import RawMediaCloudinaryStorage
 from django.db import models
 
 User = get_user_model()
@@ -8,9 +9,9 @@ class Address(models.Model):
     This will mainly refer to the address of an organization or establishment,
     but can be used as a regular address as well.
     """
+    city = models.CharField(max_length=255)
     country = models.CharField(max_length=255)
     state = models.CharField(max_length=255)
-    city = models.CharField(max_length=255)
     address = models.CharField(max_length=255)
     zip_code = models.CharField(max_length=20)
     date_added = models.DateTimeField(auto_now_add=True)
@@ -56,7 +57,10 @@ class Podcast(models.Model):
     description = models.TextField(max_length=500, help_text="short summary of this podcast")
     host = models.ForeignKey(User, on_delete=models.PROTECT)
     guest = models.ForeignKey(Guest, on_delete=models.PROTECT, null=True, blank=True)
-    audio = models.FileField(upload_to="uploads/podcast", null=True, blank=True)
+    audio = models.FileField(
+        storage=RawMediaCloudinaryStorage(),
+        upload_to="uploads/podcast",
+        null=True, blank=True)
     date_added = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
 
