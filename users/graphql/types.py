@@ -6,7 +6,7 @@ from users.models import Staff, CustomUser
 class UserType(DjangoObjectType):
     class Meta:
         model = CustomUser
-        fields = ("id", "full_name", "first_name", "last_name", "email", "username")
+        fields = ("id", "full_name", "first_name", "last_name", "email")
 
 class StaffType(DjangoObjectType):
     user = graphene.Field(UserType)
