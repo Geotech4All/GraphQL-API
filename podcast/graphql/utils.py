@@ -187,17 +187,19 @@ def perform_podcast_update(info: graphene.ResolveInfo, **kwargs) -> Podcast:
     """
     validate_staff(info)
     podcast_id = kwargs.get("podcast_id")
-    host_id = kwargs.get("host_id")
-    guest_id = kwargs.get("guest_id")
+    host_ids = kwargs.get("host_ids")
+    guest_ids = kwargs.get("guest_ids")
     if not podcast_id:
         raise GraphQLError("podcast_id is required")
-    if not host_id:
-        raise GraphQLError("host_id is required")
     podcast = get_podcast(podcast_id)
-    podcast.host = get_user(host_id)
+    if host_ids:
+        for id in host_ids:
+            podcast.hosts.add(get_user(id))
+    if guest_ids:
+        for id in guest_ids:
+            podcast.guests.add(get_guest(id))
     podcast.title = kwargs.get("title", podcast.title)
     podcast.description = kwargs.get("description", podcast.description)
-    podcast.guest = get_guest(guest_id) if guest_id else podcast.guest
     podcast.audio = kwargs.get("audio", podcast.audio)
     podcast.save()
     return podcast
@@ -208,17 +210,20 @@ def perform_podcast_create(info: graphene.ResolveInfo, **kwargs) -> Podcast:
     Performs create operation on Podcast
     """
     validate_staff(info)
-    host_id = kwargs.get("host_id")
-    guest_id = kwargs.get("guest_id")
-    if not host_id:
-        raise GraphQLError("host_id is required")
+    host_ids = kwargs.get("host_ids")
+    guest_ids = kwargs.get("guest_ids")
     podcast = Podcast.objects.create(
-        host=get_user(host_id),
         title=kwargs.get("title"),
         description=kwargs.get("description"),
         audio=kwargs.get("audio"),
-        guest=get_guest(guest_id) if guest_id else None
         )
+    if host_ids:
+        for id in host_ids:
+            podcast.hosts.add(get_user(id))
+    if guest_ids:
+        for id in guest_ids:
+            podcast.guests.add(get_guest(id))
+    podcast.save()
     return podcast
 
 

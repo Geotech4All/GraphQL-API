@@ -125,11 +125,10 @@ class PodcastCreateUpdateMutation(graphene.Mutation):
             description="The `id` of the podcast you want to update")
         title = graphene.String(required=True)
         description = graphene.String(required=True)
-        host_id = graphene.ID(
-            required=True,
-            description="The `id` of the host `User` object")
-        guest_id = graphene.ID(
-            description="This might not be required since not all podcasts have a guest")
+        host_ids = graphene.List(graphene.ID, required=True,
+            description="A list of `id`s for the host `User` object")
+        guest_ids = graphene.List(graphene.ID,
+            description="This might not be required since not all podcasts have guests")
         audio = Upload()
 
 

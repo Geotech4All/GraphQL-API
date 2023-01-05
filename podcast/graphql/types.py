@@ -1,7 +1,10 @@
+from django.contrib.auth import get_user_model
 import graphene
 from graphene_django import DjangoObjectType
 from podcast.models import Address, Event, EventImage, Opportuinity, Organization, Guest, Podcast
+from users.graphql.types import UserType
 
+User = get_user_model()
 
 class AddressNode(DjangoObjectType):
     """
@@ -39,9 +42,15 @@ class GuestType(DjangoObjectType):
     """
     Guest graphql object type
     """
+    image = graphene.String()
     class Meta:
         model = Guest
         fields = ("id", "name", "description", "organization")
+    
+    def resolve_image(self, _):
+        if isinstance(self, Guest):
+            return self.get_image_url
+        return None
 
 
 class PodcastType(DjangoObjectType):
@@ -50,16 +59,26 @@ class PodcastType(DjangoObjectType):
     """
     podcast_id = graphene.ID()
     audio = graphene.String()
+    guests = graphene.List(GuestType)
+    hosts = graphene.List(UserType)
     class Meta:
         model = Podcast
-        fields = ("title", "host", "description", "audio", "guest", "date_added", "last_updated")
+        fields = ("title", "description", "audio", "date_added", "last_updated")
         filter_fields = {
             "id": ["exact"],
             "title": ["icontains", "istartswith", "exact"],
-            "host__full_name": ["icontains", "istartswith", "exact"]
         }
         interfaces = (graphene.relay.Node, )
 
+    def resolve_guests(self, _):
+        if isinstance(self, Podcast):
+            return getattr(self, "guests").all()
+
+    def resolve_hosts(self, _):
+        if isinstance(self, Podcast):
+            podcast:Podcast = Podcast.objects.get(pk=self.pk)
+            print(podcast.hosts.all())
+            return podcast.hosts.all()
 
     def resolve_audio(self, _):
         if isinstance(self, Podcast):

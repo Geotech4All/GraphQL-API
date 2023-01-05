@@ -3,6 +3,8 @@ from cloudinary_storage.storage import RawMediaCloudinaryStorage
 from django.db import models
 
 User = get_user_model()
+USER_PLACEHOLDER_IMAGE = "https://cdn.pixabay.com/photo/2018/11/13/21/43/avatar-3814049_960_720.png"
+LOGO_PLACEHOLDER = "https://www.pngkey.com/png/detail/233-2332677_image-500580-placeholder-transparent.png"
 
 class Address(models.Model):
     """
@@ -36,14 +38,16 @@ class Organization(models.Model):
         return f"{self.name}"
 
     def get_logo_url(self):
-        if hasattr(self.logo, 'url'):
+        if self.logo and hasattr(self.logo, 'url'):
             return self.logo.url
-        return None
+        return LOGO_PLACEHOLDER
+
 
 class Guest(models.Model):
     """
     This currently refers to a guest on a podcast
     """
+    image = models.ImageField(upload_to="images/guests", null=True, blank=True)
     name = models.CharField(max_length=255, help_text="The full name of the guest")
     description = models.TextField(max_length=500, help_text="more information about this guest")
     organization = models.ForeignKey(Organization, on_delete=models.SET_NULL, null=True, blank=True)
@@ -51,12 +55,18 @@ class Guest(models.Model):
     def __str__(self) -> str:
         return f"{self.pk} - {self.name}"
 
+    @property
+    def get_image_url(self):
+        if self.image and hasattr(self.image, "url"):
+            return self.image.url
+        else:
+            return USER_PLACEHOLDER_IMAGE
 
 class Podcast(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(max_length=500, help_text="short summary of this podcast")
-    host = models.ForeignKey(User, on_delete=models.PROTECT)
-    guest = models.ForeignKey(Guest, on_delete=models.PROTECT, null=True, blank=True)
+    guests = models.ManyToManyField(Guest, related_name="podcasts")
+    hosts = models.ManyToManyField(User, related_name="podcasts")
     audio = models.FileField(
         storage=RawMediaCloudinaryStorage(),
         upload_to="uploads/podcast",
