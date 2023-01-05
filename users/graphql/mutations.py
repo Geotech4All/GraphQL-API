@@ -1,11 +1,13 @@
 import graphene #type: ignore
 from graphene_django.types import ErrorType
+from graphene_file_upload.scalars import Upload
 from graphql import GraphQLError #type: ignore
 from graphql_auth import mutations #type: ignore
 from graphql_auth.decorators import login_required
 from graphql_auth.mixins import get_user_model #type: ignore
 from users.models import Staff, CustomUser
-from .types import StaffType
+from .types import ProfileType, StaffType
+from .utils import perform_profile_update
 
 User = get_user_model()
 
@@ -36,7 +38,29 @@ class StaffCreateUpdateMutation(graphene.Mutation):
         else:
             raise GraphQLError("You do not have permissions to alter the user")
 
+class ProfileUpdateMutation(graphene.Mutation):
+    """
+    Prefroms all update operations of a users Profile
+    """
+    profile = graphene.Field(ProfileType)
+    success = graphene.Boolean()
+    errors = graphene.List(ErrorType)
+
+    class Arguments:
+        profile_id = graphene.ID(required=True)
+        first_name = graphene.String()
+        last_name = graphene.String()
+        image = Upload()
+        about = graphene.String()
+
+    @classmethod
+    @login_required
+    def mutate(cls, _, info:graphene.ResolveInfo, **kwargs):
+        profile = perform_profile_update(info, **kwargs)
+        return ProfileUpdateMutation(profile=profile, success=True)
+
 class AuthMutations(graphene.ObjectType):
+    update_profile = ProfileUpdateMutation.Field()
     create_update_staff = StaffCreateUpdateMutation.Field()
     register = mutations.Register.Field()
     verify_account = mutations.VerifyAccount.Field()

@@ -1,5 +1,7 @@
 from django.db import models #type: ignore
+from django.db.models.signals import post_save
 from typing import List, Any
+from django.dispatch import receiver
 from django.utils import timezone #type: ignore
 from django.contrib.auth.models import ( #type: ignore
     AbstractBaseUser,
@@ -66,7 +68,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     EMAIL_FIELD = 'email'
     REQUIRED_FIELDS: List[str] = []
 
-    objects: BaseManager[Any] = UserManager()
+    objects: UserManager = UserManager()
 
     def get_absolute_url(self):
         return f"/users/{self.pk}"
@@ -83,11 +85,25 @@ class Profile(models.Model):
     """
     Contains extra information about a user
     """
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='images/profile_pics')
-    about = models.TextField(max_length=500)
-def __str__(self) -> str:
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name="profile")
+    image = models.ImageField(upload_to='images/profile_pics', null=True, blank=True)
+    about = models.TextField(max_length=500, null=True, blank=True)
+    def __str__(self) -> str:
         return f"{self.pk} - {self.user.email}"
+
+    @property
+    def get_image_url(self):
+        if self.image and hasattr(self.image, "url"):
+            return self.image.url
+        else:
+            return "https://cdn.pixabay.com/photo/2018/11/13/21/43/avatar-3814049_960_720.png"
+
+
+
+@receiver(post_save, sender=CustomUser, dispatch_uid="create_user_profile")
+def create_profile_on_user_create(sender, instance, created, **kwargs):
+    if created == True:
+        Profile.objects.create(user=instance)
 
 
 class Staff(models.Model):
