@@ -63,7 +63,7 @@ class PodcastType(DjangoObjectType):
     hosts = graphene.List(UserType)
     class Meta:
         model = Podcast
-        fields = ("title", "description", "audio", "date_added", "last_updated")
+        fields = ("title", "description", "listens", "audio", "date_added", "last_updated")
         filter_fields = {
             "id": ["exact"],
             "title": ["icontains", "istartswith", "exact"],

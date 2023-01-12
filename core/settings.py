@@ -30,6 +30,7 @@ DEBUG = config("DEBUG") == "True"
 # ALLOWED_HOSTS = []
 ALLOWED_HOSTS = [
     "*",
+    "localhost:3000",
     "graphql-api-production-4532.up.railway.app",
 ]
 

@@ -226,6 +226,17 @@ def perform_podcast_create(info: graphene.ResolveInfo, **kwargs) -> Podcast:
     podcast.save()
     return podcast
 
+def perform_podcast_listens_increase(**kwargs) -> Podcast:
+    """
+    Increases a podcasts listens by 1 and returns that podcast
+    """
+    podcast_id = kwargs.get("podcast_id")
+    assert not podcast_id, GraphQLError("podcast_id is required")
+    podcast = get_podcast(str(podcast_id))
+    podcast.listens += 1
+    podcast.save()
+    return podcast
+
 
 def perform_event_update(info: graphene.ResolveInfo, **kwargs) -> Event:
     """

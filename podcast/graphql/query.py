@@ -6,6 +6,7 @@ from podcast.models import Address, EventImage, Guest, Podcast
 
 class PodcastQuery(graphene.ObjectType):
     all_podcasts = DjangoFilterConnectionField(PodcastType)
+    most_listened_to_podcasts = DjangoFilterConnectionField(PodcastType)
     all_event_images = graphene.List(EventImageType)
     get_guest_by_id = graphene.Field(
         GuestType,
@@ -15,8 +16,10 @@ class PodcastQuery(graphene.ObjectType):
         address_id=graphene.ID(required=True))
 
     def resolve_all_podcasts(root, info, **kwargs):
-        return Podcast.objects.all()
+        return Podcast.objects.all().order_by("date_added")
 
+    def resolve_most_listened_to_podcasts(root, info, **kwargs):
+        return Podcast.objects.all().order_by("listens")
 
     def resolve_all_event_images(root, info, **kwargs):
         return EventImage.objects.all()

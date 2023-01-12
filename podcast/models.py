@@ -67,6 +67,7 @@ class Podcast(models.Model):
     description = models.TextField(max_length=500, help_text="short summary of this podcast")
     guests = models.ManyToManyField(Guest, related_name="podcasts")
     hosts = models.ManyToManyField(User, related_name="podcasts")
+    listens = models.PositiveIntegerField(default=0)
     audio = models.FileField(
         storage=RawMediaCloudinaryStorage(),
         upload_to="uploads/podcast",
@@ -81,7 +82,7 @@ class Podcast(models.Model):
         return f"{self.pk} - {self.title}"
 
     def get_audio_url(self):
-        if hasattr(self.audio, 'url'):
+        if self.audio and hasattr(self.audio, 'url'):
             return self.audio.url
         return None
 

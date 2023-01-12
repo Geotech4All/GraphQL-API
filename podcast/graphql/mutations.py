@@ -24,6 +24,7 @@ from .utils import (
     perform_organization_create,
     perform_organization_update,
     perform_podcast_create,
+    perform_podcast_listens_increase,
     perform_podcast_update)
 
 class AddressCreateUpdateMutation(graphene.Mutation):
@@ -143,6 +144,20 @@ class PodcastCreateUpdateMutation(graphene.Mutation):
         return PodcastCreateUpdateMutation(success=True, podcast=podcast)
 
 
+class IncreasePodcastListens(graphene.Mutation):
+    success = graphene.Boolean()
+    errors = graphene.List(ErrorType)
+    podcast = graphene.Field(PodcastType)
+
+    class Arguments:
+        podcast_id = graphene.ID(required=True)
+
+    @classmethod
+    def mutate(cls, root, info: graphene.ResolveInfo, **kwargs):
+        podcast = perform_podcast_listens_increase(**kwargs)
+        return IncreasePodcastListens(success=True, podcast=podcast)
+
+
 class EventCreateUpdateMutation(graphene.Mutation):
     """
     Performs create and update actions for an event.
@@ -234,6 +249,7 @@ class OpportunityCreateUpdateMutation(graphene.Mutation):
 
 
 class PodcastMutations(graphene.ObjectType):
+    increase_podcast_listens = IncreasePodcastListens.Field()
     create_update_address = AddressCreateUpdateMutation.Field()
     create_update_organization = OrganizationCreateUpdateMutation.Field()
     create_update_guest = GuestCreateUpdateMutation.Field()
