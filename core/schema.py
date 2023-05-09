@@ -1,0 +1,33 @@
+import graphene
+from assets.graphql.mutation import AssetMutations
+from assets.graphql.query import AssetsQuery
+from opportunities.graphql.mutations import OpportunityMutations
+from opportunities.graphql.queries import OpportunityQueries
+from users.graphql.query import UsersQuery
+from users.graphql.mutations import AuthMutations
+from blog.graphql.query import BlogQuery
+from blog.graphql.mutations import BlogMutations
+from podcast.graphql.mutations import PodcastMutations
+from podcast.graphql.query import PodcastQuery
+
+
+class Query(
+    UsersQuery,
+    BlogQuery,
+    PodcastQuery,
+    AssetsQuery,
+    OpportunityQueries,
+    graphene.ObjectType):
+    pass
+
+class Mutation(
+        AuthMutations,
+        BlogMutations,
+        PodcastMutations,
+        AssetMutations,
+        OpportunityMutations,
+        graphene.ObjectType):
+    pass
+
+
+schema = graphene.Schema(query=Query, mutation=Mutation)
