@@ -21,12 +21,10 @@ def perform_opportunity_create(info: graphene.ResolveInfo, **kwargs)-> Opportuni
     if not title: raise GraphQLError("Title is required")
     opportunity: Opportunity = Opportunity.objects.create(
             title=title,
-            description=kwargs.get("description"),
-            category=Tag.objects.filter(title__iexact=kwargs.get("category")).first()
+            abstract=kwargs.get("abstract"),
+            content=kwargs.get("content"),
+            category=Tag.objects.filter(title__iexact=kwargs.get("category_id")).first()
         )
-    image_ids = kwargs.get("image_ids")
-    if image_ids:
-        opportunity.images = Image.objects.filter(pk__in=list(image_ids))
     opportunity.save()
     return opportunity
 
@@ -38,16 +36,15 @@ def perform_opportunity_update(info: graphene.ResolveInfo, **kwargs) -> Opportun
 
     opportunity_id = kwargs.get("opportunity_id")
     title = kwargs.get("title", None)
-    description = kwargs.get("description")
-    image_ids = kwargs.get("image_ids")
-    category = kwargs.get("category")
+    abstract = kwargs.get("abstract")
+    content  = kwargs.get("content")
+    category_id = kwargs.get("category_id")
 
     opportunity = get_opportunity_by_id(str(opportunity_id))
 
     if title: opportunity.title = title
-    if description: opportunity.description = description
-    if category: opportunity.category = Tag.objects.filter(title__iexact=category).first()
-    if image_ids:
-        opportunity.images = Image.objects.filter(pk__in=list(image_ids))
+    if abstract: opportunity.abstract = abstract
+    if content: opportunity.content = content
+    if category_id: opportunity.category = Tag.objects.filter(title__iexact=category_id).first()
     opportunity.save()
     return opportunity

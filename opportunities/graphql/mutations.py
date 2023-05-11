@@ -3,7 +3,7 @@ from graphene_django.types import ErrorType
 from graphql_auth.decorators import login_required
 
 from django.utils.translation import gettext_lazy as _
-from opportunities.graphql.types import IdInput, OpportunityType
+from opportunities.graphql.types import OpportunityType
 from opportunities.graphql.utils.opportunity_utils import (
         perform_opportunity_create,
         perform_opportunity_update)
@@ -18,11 +18,10 @@ class OpportunityCreateUpdateMutation(graphene.Mutation):
 
     class Arguments:
         opportunity_id = graphene.ID()
-        title = graphene.String()
-        description = graphene.String()
-        image_ids = graphene.List(IdInput)
+        title = graphene.String(required=True)
+        abstract = graphene.String()
+        content = graphene.String()
         category = graphene.String()
-
 
     @classmethod
     @login_required

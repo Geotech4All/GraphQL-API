@@ -15,7 +15,7 @@ class Post(models.Model):
     body = models.TextField(max_length=700, null=False, blank=False)
     views = models.PositiveIntegerField(default=0)
     likes = models.PositiveIntegerField(default=0)
-    cover_photo = models.ForeignKey(Image, on_delete=models.CASCADE, null=True, blank=True)
+    cover_photo = models.ForeignKey(Image, on_delete=models.SET_NULL, null=True, blank=True)
     dislikes = models.PositiveIntegerField(default=0)
     read_length = models.FloatField(null=True)
     date_added = models.DateTimeField(auto_now_add=True)
@@ -34,20 +34,6 @@ class Post(models.Model):
     def save(self, *args, **kwargs) -> None:
         self.read_length = self._set_read_length()
         return super().save(*args, **kwargs)
-
-class PostImage(models.Model):
-    image = models.ImageField(upload_to="images/posts", null=True, blank=True)
-    description = models.CharField(max_length=255, null=True, blank=True)
-
-    def __str__(self) -> str:
-        image_url = self.image.url if self.image and hasattr(self.image, 'url') else f"Image {self.pk}"
-        return f"{image_url}"
-
-    @property
-    def get_image(self):
-        if self.image and hasattr(self.image, "url"):
-            return self.image.url
-        return None
 
 
 class Comment(models.Model):

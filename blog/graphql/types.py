@@ -1,27 +1,8 @@
 import graphene #type: ignore
 from graphene_django import DjangoObjectType #type: ignore
-from blog.models import Post, Comment, PostImage
+from blog.models import Post, Comment
 from users.graphql.types import UserType
  
-
-class PostImageType(DjangoObjectType):
-    post_image_id = graphene.ID()
-    image = graphene.String()
-    class Meta:
-        model = PostImage
-        fields = ("description", )
-        filter_fields = {"description": ["icontains", "istartswith", "exact"]}
-        interfaces = (graphene.relay.Node, )
-
-    def resolve_post_image_id(self, _):
-        if isinstance(self, PostImage):
-            return self.pk
-        return None
-
-    def resolve_image(self, _):
-        if isinstance(self, PostImage):
-            return self.get_image
-        return None
 
 class CommentType(DjangoObjectType):
     author = graphene.Field(UserType)
