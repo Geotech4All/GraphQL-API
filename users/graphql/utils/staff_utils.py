@@ -43,6 +43,9 @@ def perform_staff_update(info: graphene.ResolveInfo, **kwargs):
     if kwargs.get("can_create_podcast", None): staff.can_create_podcast = kwargs.get("can_create_podcast")
     if kwargs.get("can_alter_podcast", None): staff.can_alter_podcast = kwargs.get("can_alter_podcast")
     if kwargs.get("can_delete_podcast", None): staff.can_delete_podcast = kwargs.get("can_delete_podcast")
+    if kwargs.get("can_create_opportunities", None): staff.can_create_opportunities = kwargs.get("can_create_opportunities")
+    if kwargs.get("can_update_opportunities", None): staff.can_update_opportunities = kwargs.get("can_update_opportunities")
+    if kwargs.get("can_delete_opportunities", None): staff.can_delete_opportunities = kwargs.get("can_delete_opportunities")
     staff.save() #type: ignore
     return staff
 
@@ -74,5 +77,8 @@ def perform_staff_create(info: graphene.ResolveInfo, **kwargs) -> Staff:
         if kwargs.get("can_create_podcast", None): staff.can_create_podcast = kwargs.get("can_create_podcast")
         if kwargs.get("can_alter_podcast", None): staff.can_alter_podcast = kwargs.get("can_alter_podcast")
         if kwargs.get("can_delete_podcast", None): staff.can_delete_podcast = kwargs.get("can_delete_podcast")
+        if kwargs.get("can_create_opportunities", None): staff.can_create_opportunities = kwargs.get("can_create_opportunities")
+        if kwargs.get("can_update_opportunities", None): staff.can_update_opportunities = kwargs.get("can_update_opportunities")
+        if kwargs.get("can_delete_opportunities", None): staff.can_delete_opportunities = kwargs.get("can_delete_opportunities")
         staff.save()
         return staff

@@ -50,6 +50,9 @@ class StaffCreateMutation(graphene.Mutation):
         can_create_podcast = graphene.Boolean()
         can_alter_podcast = graphene.Boolean() 
         can_delete_podcast = graphene.Boolean()
+        can_create_opportunities = graphene.Boolean()
+        can_update_opportunities = graphene.Boolean()
+        can_delete_opportunities = graphene.Boolean()
 
 
     @classmethod
@@ -81,6 +84,9 @@ class StaffUpdateMutation(graphene.Mutation):
         can_create_podcast = graphene.Boolean()
         can_alter_podcast = graphene.Boolean() 
         can_delete_podcast = graphene.Boolean()
+        can_create_opportunities = graphene.Boolean()
+        can_update_opportunities = graphene.Boolean()
+        can_delete_opportunities = graphene.Boolean()
 
     @classmethod
     @login_required

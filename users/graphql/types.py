@@ -25,7 +25,10 @@ class StaffType(DjangoObjectType):
             'can_delete_user',
             'can_create_podcast',
             'can_alter_podcast',
-            'can_delete_podcast')
+            'can_delete_podcast',
+            'can_create_opportunities',
+            'can_update_opportunities',
+            'can_delete_opportunities')
         interfaces = (graphene.relay.Node, )
 
 
