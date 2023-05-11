@@ -23,7 +23,7 @@ def perform_opportunity_create(info: graphene.ResolveInfo, **kwargs)-> Opportuni
             title=title,
             abstract=kwargs.get("abstract"),
             content=kwargs.get("content"),
-            category=Tag.objects.filter(title__iexact=kwargs.get("category_id")).first()
+            category=Tag.objects.filter(title__iexact=kwargs.get("category")).first()
         )
     opportunity.save()
     return opportunity
@@ -38,13 +38,13 @@ def perform_opportunity_update(info: graphene.ResolveInfo, **kwargs) -> Opportun
     title = kwargs.get("title", None)
     abstract = kwargs.get("abstract")
     content  = kwargs.get("content")
-    category_id = kwargs.get("category_id")
+    category = kwargs.get("category")
 
     opportunity = get_opportunity_by_id(str(opportunity_id))
 
     if title: opportunity.title = title
     if abstract: opportunity.abstract = abstract
     if content: opportunity.content = content
-    if category_id: opportunity.category = Tag.objects.filter(title__iexact=category_id).first()
+    if category: opportunity.category = Tag.objects.filter(title__iexact=category).first()
     opportunity.save()
     return opportunity

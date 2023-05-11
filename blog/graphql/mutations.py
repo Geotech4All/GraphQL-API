@@ -1,11 +1,9 @@
-import graphene #type: ignore
+import graphene 
+from graphql import GraphQLError 
 from graphene_django.types import ErrorType
-from graphene_file_upload.scalars import Upload
-from graphql import GraphQLError #type: ignore
 from graphql_auth.decorators import login_required
 
-from blog.graphql.utils.post_image_utils import perform_post_image_create #type: ignore
-from .types import CommentType, PostImageType, PostType
+from .types import CommentType, PostType
 from .utils.post_utils import perform_post_create, perform_post_delete, perform_post_update
 from blog.models import Comment, Post
 
@@ -92,27 +90,6 @@ class PostDeleteMutation(graphene.Mutation):
         return PostDeleteMutation(success=deleted)
 
 
-class PostImageCreateUpdateMutation(graphene.Mutation):
-    """
-    Create and update mutation for a post image.
-    To perform an update, all you need to do is pass in the post image `id`
-    """
-    success = graphene.Boolean()
-    errors = graphene.List(ErrorType)
-    post_image = graphene.Field(PostImageType)
-
-    class Arguments:
-        image = Upload(description="The image file")
-        description = graphene.String(description="this can be used as the `alt` property of the image")
-
-    @classmethod
-    @login_required
-    def mutate(cls, root, info, **kwargs):
-        post_image = perform_post_image_create(info, **kwargs)
-        print(post_image)
-        return PostImageCreateUpdateMutation(success=True, post_image=post_image)
-
-
 class CommentCreateMutation(graphene.Mutation):
     """
     Handles create operarion for comments
@@ -147,5 +124,4 @@ class BlogMutations(graphene.ObjectType):
     create_update_post = PostCreateUpdateMutation.Field()
     delete_post = PostDeleteMutation.Field()
     create_comment = CommentCreateMutation.Field()
-    create_update_post_image = PostImageCreateUpdateMutation.Field()
     increase_post_view_count = PostViewsIncreaseMutation.Field()
