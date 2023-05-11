@@ -13,7 +13,6 @@ def get_object_or_errror(klass: T, *args, **kwargs) -> T:
     #Ensure klass is a subclass of models.Model
     assert (inspect.isclass(klass) and issubclass(klass, models.Model)), "Invalid input"
     try:
-        obj = klass.objects.get(*args, **kwargs)
-        return obj
+        return klass.objects.get(*args, **kwargs)
     except klass.DoesNotExist:
-        raise GraphQLError(f"{klass} with {args} and {kwargs} was not found")
+        raise GraphQLError(f"{klass.__name__} with {kwargs} was not found")

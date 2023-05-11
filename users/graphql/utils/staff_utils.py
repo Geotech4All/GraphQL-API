@@ -19,6 +19,12 @@ def validate_and_return_staff(info: graphene.ResolveInfo) -> Staff:
             return staff
         raise GraphQLError("You do not have staff authorization and are not authorized to perfom this action")
 
+staff_fields = [
+        "can_create_post", "can_alter_post", "can_delete_post",
+        "can_create_user", "can_alter_user", "can_delete_user",
+        "can_create_podcast", "can_alter_podcast", "can_delete_podcast", 
+        "can_create_opportunities", "can_update_opportunities", "can_delete_opportunities"
+    ]
 
 def perform_staff_update(info: graphene.ResolveInfo, **kwargs):
     """
@@ -32,21 +38,12 @@ def perform_staff_update(info: graphene.ResolveInfo, **kwargs):
 
     user_email = kwargs.get("user_email")
     if not user_email: raise GraphQLError("staff_id is required to perform an update")
-
     staff = get_object_or_errror(Staff, user__email=user_email)
-    if kwargs.get("can_create_post", None): staff.can_create_post = kwargs.get("can_create_post")
-    if kwargs.get("can_alter_post", None): staff.can_alter_post = kwargs.get("can_alter_post")
-    if kwargs.get("can_delete_post", None): staff.can_delete_post = kwargs.get("can_delete_post")
-    if kwargs.get("can_create_user", None): staff.can_create_user = kwargs.get("can_create_user")
-    if kwargs.get("can_alter_user", None): staff.can_alter_user = kwargs.get("can_alter_user")
-    if kwargs.get("can_delete_user", None): staff.can_delete_user = kwargs.get("can_delete_user")
-    if kwargs.get("can_create_podcast", None): staff.can_create_podcast = kwargs.get("can_create_podcast")
-    if kwargs.get("can_alter_podcast", None): staff.can_alter_podcast = kwargs.get("can_alter_podcast")
-    if kwargs.get("can_delete_podcast", None): staff.can_delete_podcast = kwargs.get("can_delete_podcast")
-    if kwargs.get("can_create_opportunities", None): staff.can_create_opportunities = kwargs.get("can_create_opportunities")
-    if kwargs.get("can_update_opportunities", None): staff.can_update_opportunities = kwargs.get("can_update_opportunities")
-    if kwargs.get("can_delete_opportunities", None): staff.can_delete_opportunities = kwargs.get("can_delete_opportunities")
+    for field in staff_fields:
+        field_value = kwargs.get(field)
+        if hasattr(Staff, field): setattr(staff, field, field_value)
     staff.save() #type: ignore
+    print(staff.can_update_opportunities)
     return staff
 
 
@@ -58,27 +55,15 @@ def perform_staff_create(info: graphene.ResolveInfo, **kwargs) -> Staff:
 
     user_email = kwargs.get("user_email")
     if not user_email: raise GraphQLError("user_email is required")
-    
-    try:
-        user = User.objects.get(email=user_email)
-    except User.DoesNotExist:
-        raise GraphQLError('A user with the specified email does not exist')
+
+    user = get_object_or_errror(User, email=user_email)
 
     if Staff.objects.filter(user=user).count():
         raise GraphQLError("This user already has staff privilledges")
     else:
         staff: Staff = Staff.objects.create(user=user)
-        if kwargs.get("can_create_post", None): staff.can_create_post = kwargs.get("can_create_post")
-        if kwargs.get("can_alter_post", None): staff.can_alter_post = kwargs.get("can_alter_post")
-        if kwargs.get("can_delete_post", None): staff.can_delete_post = kwargs.get("can_delete_post")
-        if kwargs.get("can_create_user", None): staff.can_create_user = kwargs.get("can_create_user")
-        if kwargs.get("can_alter_user", None): staff.can_alter_user = kwargs.get("can_alter_user")
-        if kwargs.get("can_delete_user", None): staff.can_delete_user = kwargs.get("can_delete_user")
-        if kwargs.get("can_create_podcast", None): staff.can_create_podcast = kwargs.get("can_create_podcast")
-        if kwargs.get("can_alter_podcast", None): staff.can_alter_podcast = kwargs.get("can_alter_podcast")
-        if kwargs.get("can_delete_podcast", None): staff.can_delete_podcast = kwargs.get("can_delete_podcast")
-        if kwargs.get("can_create_opportunities", None): staff.can_create_opportunities = kwargs.get("can_create_opportunities")
-        if kwargs.get("can_update_opportunities", None): staff.can_update_opportunities = kwargs.get("can_update_opportunities")
-        if kwargs.get("can_delete_opportunities", None): staff.can_delete_opportunities = kwargs.get("can_delete_opportunities")
+        for field in staff_fields:
+            field_value = kwargs.get(field)
+            if hasattr(Staff, field): setattr(staff, field, field_value)
         staff.save()
         return staff
