@@ -57,7 +57,7 @@ class File(models.Model):
     @classmethod
     def new(cls, file: Any, name: str, description:str|None=None, folder:str|None=None):
         from assets.utils import CloudinaryType
-        response:CloudinaryType = cu.upload(file, folder=f"files/{folder}")
+        response:CloudinaryType = CloudinaryType(**cu.upload(file, folder=f"files/{folder}", resource_type="raw"))
         new_file: File = File.objects.create(
                 name=name,
                 url=response.url,

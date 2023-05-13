@@ -12,6 +12,7 @@ class ImageFoldersEnum(graphene.Enum):
     PROFILE = "PROFILE",
     OPPORTUNITY = "OPPORTUNITY"
     BLOG = "BLOG"
+    PODCAST = "PODCAST"
 
 class ImageCreateUpdateMutation(graphene.Mutation):
     image = graphene.Field(ImageType)
@@ -61,7 +62,7 @@ class FileCreateUpdateMutation(graphene.Mutation):
     class Arguments:
         file_id = graphene.ID()
         file = Upload()
-        name = graphene.String(required=True)
+        name = graphene.String()
         description = graphene.String()
 
     @classmethod

@@ -25,5 +25,8 @@ def get_file(id: str|int) -> File:
 
 
 class CloudinaryType:
+    def __init__(self, **kwargs) -> None:
+        self.url = str(kwargs.get("url"))
+        self.public_id = str(kwargs.get("public_id"))
     url: str
     public_id: str
