@@ -8,7 +8,9 @@ from django.contrib.auth.models import ( #type: ignore
     BaseUserManager,
     PermissionsMixin,
     User)
-from django.utils.translation import gettext_lazy as _ #type: ignore
+from django.utils.translation import gettext_lazy as _
+
+from assets.models import Image #type: ignore
 
 
 class UserManager(BaseUserManager):
@@ -85,18 +87,10 @@ class Profile(models.Model):
     Contains extra information about a user
     """
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name="profile")
-    image = models.ImageField(upload_to='images/profile_pics', null=True, blank=True)
+    image = models.ForeignKey(Image, on_delete=models.SET_NULL, null=True)
     about = models.TextField(max_length=500, null=True, blank=True)
     def __str__(self) -> str:
         return f"{self.pk} - {self.user.email}"
-
-    @property
-    def get_image_url(self):
-        if self.image and hasattr(self.image, "url"):
-            return self.image.url
-        else:
-            return None #"https://cdn.pixabay.com/photo/2018/11/13/21/43/avatar-3814049_960_720.png"
-
 
 
 @receiver(post_save, sender=CustomUser, dispatch_uid="create_user_profile")

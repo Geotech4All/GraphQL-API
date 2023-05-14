@@ -44,20 +44,14 @@ class StaffType(DjangoObjectType):
 
 class ProfileType(DjangoObjectType):
     user = graphene.Field(UserType)
-    image = graphene.String()
     profile_id = graphene.ID()
     class Meta:
         model = Profile
-        fields = ("user", "about")
+        fields = ("user", "about", "image")
 
     def resolve_user(self, _):
         if isinstance(self, Profile):
             return self.user
-        return None
-
-    def resolve_image(self, _):
-        if isinstance(self, Profile):
-            return self.get_image_url
         return None
 
     def resolve_profile_id(self, _):
