@@ -44,8 +44,9 @@ def perform_staff_update(info: graphene.ResolveInfo, **kwargs):
     for field in staff_fields:
         field_value = kwargs.get(field)
         if hasattr(Staff, field): setattr(staff, field, field_value)
-    user.is_staff = True
-    user.save()
+    if not user.is_staff:
+        user.is_staff = True
+        user.save()
     staff.save() #type: ignore
     print(staff.can_update_opportunities)
     return staff
