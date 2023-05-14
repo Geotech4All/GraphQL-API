@@ -9,7 +9,10 @@ class ImageType(DjangoObjectType):
     class Meta:
         model = Image
         fields = ("public_id", "url", "description")
-        filter_fields = {"description": ["icontains", "exact", "istartswith"]}
+        filter_fields = {
+                "description": ["icontains", "exact", "istartswith"],
+                "folder": ["iexact"]
+            }
         interfaces = (graphene.relay.Node, )
 
     def resolve_image_id(self, _):
@@ -25,7 +28,8 @@ class FileType(DjangoObjectType):
         fields = ("name", "description", "url", "public_id")
         filter_fields = {
                 "name": ["icontains", "exact", "istartswith"],
-                "description": ["icontains", "istartswith"]
+                "description": ["icontains", "istartswith"],
+                "folder": ["iexact"]
             }
         interfaces = (graphene.relay.Node, )
 

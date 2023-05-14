@@ -51,7 +51,7 @@ class ImageDeleteMutation(graphene.Mutation):
         return ImageDeleteMutation(success=success)
 
 
-class FileFoldesEnum(graphene.Enum):
+class FileFoldersEnum(graphene.Enum):
     PODCAST = "PODCAST"
 
 class FileCreateUpdateMutation(graphene.Mutation):
@@ -64,6 +64,7 @@ class FileCreateUpdateMutation(graphene.Mutation):
         file = Upload()
         name = graphene.String()
         description = graphene.String()
+        folder = FileFoldersEnum()
 
     @classmethod
     @login_required
