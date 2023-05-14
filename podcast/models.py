@@ -2,6 +2,8 @@ from django.contrib.auth import get_user_model
 from cloudinary_storage.storage import RawMediaCloudinaryStorage
 from django.db import models
 
+from assets.models import File, Image
+
 User = get_user_model()
 USER_PLACEHOLDER_IMAGE = "https://cdn.pixabay.com/photo/2018/11/13/21/43/avatar-3814049_960_720.png"
 LOGO_PLACEHOLDER = "https://www.pngkey.com/png/detail/233-2332677_image-500580-placeholder-transparent.png"
@@ -63,18 +65,14 @@ class Guest(models.Model):
         else:
             return USER_PLACEHOLDER_IMAGE
 
-# TODO: Conver Podcast cover_photo to use Image table
 
 class Podcast(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(max_length=500, help_text="short summary of this podcast")
     guests = models.ManyToManyField(Guest, related_name="podcasts")
     listens = models.PositiveIntegerField(default=0)
-    cover_photo = models.ImageField(upload_to="images/podcasts", null=True, blank=True)
-    audio = models.FileField(
-        storage=RawMediaCloudinaryStorage(),
-        upload_to="uploads/podcast",
-        null=True, blank=True)
+    cover_photo = models.ForeignKey(Image, on_delete=models.SET_NULL, null=True)
+    audio = models.ForeignKey(File, on_delete=models.SET_NULL, null=True)
     date_added = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
 

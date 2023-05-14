@@ -1,5 +1,5 @@
 from graphql import GraphQLError
-from assets.models import Image
+from assets.models import File, Image
 
 
 def get_image(id: str|int) -> Image:
@@ -11,3 +11,22 @@ def get_image(id: str|int) -> Image:
         return Image.objects.get(pk=id)
     except Image.DoesNotExist:
         raise GraphQLError(f"Image reccord with id {id} was not found")
+
+
+def get_file(id: str|int) -> File:
+    """
+    Gets and retuns a file with the specified `id`
+    and thows a graphql error if the file was not found
+    """
+    try:
+        return File.objects.get(pk=id)
+    except File.DoesNotExist:
+        raise GraphQLError(f"File reccord with id {id} was not found")
+
+
+class CloudinaryType:
+    def __init__(self, **kwargs) -> None:
+        self.url = str(kwargs.get("url"))
+        self.public_id = str(kwargs.get("public_id"))
+    url: str
+    public_id: str

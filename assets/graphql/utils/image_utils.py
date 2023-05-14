@@ -18,10 +18,8 @@ def perform_image_update(info: graphene.ResolveInfo, **kwargs) -> Image:
     if not image_id:
         raise GraphQLError("image_id is required")
 
-    return Image.update(
-            image_id=image_id,
-            image=kwargs.get("image"),
-            description=kwargs.get("description"))
+    image = get_image(id=str(image_id))
+    return image.update(image=kwargs.get("image"), description=kwargs.get("description"))
 
 def perform_image_delete(info: graphene.ResolveInfo, **kwargs) -> bool:
     validate_and_return_staff(info)

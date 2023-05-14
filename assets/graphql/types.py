@@ -1,7 +1,7 @@
 import graphene
 from graphene_django import DjangoObjectType
 
-from assets.models import Image, Tag
+from assets.models import File, Image, Tag
 
 
 class ImageType(DjangoObjectType):
@@ -9,11 +9,32 @@ class ImageType(DjangoObjectType):
     class Meta:
         model = Image
         fields = ("public_id", "url", "description")
-        filter_fields = {"description": ["icontains", "exact", "istartswith"]}
+        filter_fields = {
+                "description": ["icontains", "exact", "istartswith"],
+                "folder": ["iexact"]
+            }
         interfaces = (graphene.relay.Node, )
 
     def resolve_image_id(self, _):
         if isinstance(self, Image):
+            return self.pk
+        return None
+
+
+class FileType(DjangoObjectType):
+    file_id = graphene.ID()
+    class Meta:
+        model = File
+        fields = ("name", "description", "url", "public_id")
+        filter_fields = {
+                "name": ["icontains", "exact", "istartswith"],
+                "description": ["icontains", "istartswith"],
+                "folder": ["iexact"]
+            }
+        interfaces = (graphene.relay.Node, )
+
+    def resolve_file_id(self, _):
+        if isinstance(self, File):
             return self.pk
         return None
 

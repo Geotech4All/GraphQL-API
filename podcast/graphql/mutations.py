@@ -121,8 +121,8 @@ class PodcastCreateUpdateMutation(graphene.Mutation):
             description="A list of `id`s for the host `User` object")
         guest_ids = graphene.List(graphene.ID,
             description="This might not be required since not all podcasts have guests")
-        audio = Upload()
-        cover_photo = Upload()
+        audio_id = graphene.ID()
+        cover_photo_id = graphene.ID()
 
 
     @classmethod

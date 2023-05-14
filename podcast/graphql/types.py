@@ -89,13 +89,11 @@ class PodcastType(DjangoObjectType):
     Podcast graphql object type
     """
     podcast_id = graphene.ID()
-    audio = graphene.String()
     guests = graphene.List(GuestType)
     hosts = graphene.List(HostType)
-    cover_photo = graphene.String()
     class Meta:
         model = Podcast
-        fields = ("title", "description", "listens", "audio", "date_added", "last_updated")
+        fields = ("title", "description", "listens", "audio", "cover_photo", "date_added", "last_updated")
         filter_fields = {
             "id": ["exact"],
             "title": ["icontains", "istartswith", "exact"],
@@ -110,20 +108,11 @@ class PodcastType(DjangoObjectType):
         if isinstance(self, Podcast):
             return Host.objects.filter(podcast__id=self.pk)
 
-    def resolve_audio(self, _):
-        if isinstance(self, Podcast):
-            return self.get_audio_url()
-        return None
-
     def resolve_podcast_id(self, _):
         if isinstance(self, Podcast):
             return getattr(self, "id")
         return None
 
-    def resolve_cover_photo(self, _):
-        if isinstance(self, Podcast):
-            return self.get_image_url()
-        return None
 
 class EventType(DjangoObjectType):
     """

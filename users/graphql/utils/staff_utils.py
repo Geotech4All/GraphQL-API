@@ -1,8 +1,9 @@
+from typing import cast
 from django.contrib.auth import get_user_model
 import graphene
 from graphql import GraphQLError
 from core.utils import get_object_or_errror
-from users.models import Staff
+from users.models import CustomUser, Staff
 
 
 User = get_user_model()
@@ -38,10 +39,14 @@ def perform_staff_update(info: graphene.ResolveInfo, **kwargs):
 
     user_email = kwargs.get("user_email")
     if not user_email: raise GraphQLError("staff_id is required to perform an update")
+    user = cast(CustomUser, get_object_or_errror(User, email=user_email))
     staff = get_object_or_errror(Staff, user__email=user_email)
     for field in staff_fields:
         field_value = kwargs.get(field)
         if hasattr(Staff, field): setattr(staff, field, field_value)
+    if not user.is_staff:
+        user.is_staff = True
+        user.save()
     staff.save() #type: ignore
     print(staff.can_update_opportunities)
     return staff
@@ -56,7 +61,7 @@ def perform_staff_create(info: graphene.ResolveInfo, **kwargs) -> Staff:
     user_email = kwargs.get("user_email")
     if not user_email: raise GraphQLError("user_email is required")
 
-    user = get_object_or_errror(User, email=user_email)
+    user = cast(CustomUser, get_object_or_errror(User, email=user_email))
 
     if Staff.objects.filter(user=user).count():
         raise GraphQLError("This user already has staff privilledges")
@@ -65,5 +70,7 @@ def perform_staff_create(info: graphene.ResolveInfo, **kwargs) -> Staff:
         for field in staff_fields:
             field_value = kwargs.get(field)
             if hasattr(Staff, field): setattr(staff, field, field_value)
+        user.is_staff = True
+        user.save()
         staff.save()
         return staff
