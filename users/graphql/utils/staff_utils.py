@@ -42,8 +42,8 @@ def perform_staff_update(info: graphene.ResolveInfo, **kwargs):
     user = cast(CustomUser, get_object_or_errror(User, email=user_email))
     staff = get_object_or_errror(Staff, user__email=user_email)
     for field in staff_fields:
-        field_value = kwargs.get(field)
-        if hasattr(Staff, field): setattr(staff, field, field_value)
+        field_value = kwargs.get(field, None)
+        if hasattr(Staff, field) and field_value is not None: setattr(staff, field, field_value)
     if not user.is_staff:
         user.is_staff = True
         user.save()
@@ -67,9 +67,6 @@ def perform_staff_create(info: graphene.ResolveInfo, **kwargs) -> Staff:
         raise GraphQLError("This user already has staff privilledges")
     else:
         staff: Staff = Staff.objects.create(user=user)
-        for field in staff_fields:
-            field_value = kwargs.get(field)
-            if hasattr(Staff, field): setattr(staff, field, field_value)
         user.is_staff = True
         user.save()
         staff.save()
