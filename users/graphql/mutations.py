@@ -1,6 +1,5 @@
 import graphene
 from graphene_django.types import ErrorType
-from graphene_file_upload.scalars import Upload
 from graphql_auth import mutations
 from graphql_auth.decorators import login_required
 from users.graphql.utils.staff_utils import perform_staff_create, perform_staff_update
@@ -57,7 +56,7 @@ class StaffCreateMutation(graphene.Mutation):
 
     @classmethod
     @login_required
-    def mutate(cls, root, info: graphene.ResolveInfo, **kwargs):
+    def mutate(cls, _, info: graphene.ResolveInfo, **kwargs):
         new_staff = perform_staff_create(info, **kwargs)
         return StaffCreateMutation(staff=new_staff, success=True)
 
@@ -90,7 +89,7 @@ class StaffUpdateMutation(graphene.Mutation):
 
     @classmethod
     @login_required
-    def mutate(cls, root, info: graphene.ResolveInfo, **kwargs):
+    def mutate(cls, _, info: graphene.ResolveInfo, **kwargs):
         updated_staff = perform_staff_update(info, **kwargs)
         return StaffUpdateMutation(staff=updated_staff, success=True)
 
@@ -107,7 +106,7 @@ class ProfileUpdateMutation(graphene.Mutation):
         profile_id = graphene.ID(required=True)
         first_name = graphene.String()
         last_name = graphene.String()
-        image = Upload()
+        image_id = graphene.ID()
         about = graphene.String()
 
     @classmethod
