@@ -36,9 +36,9 @@ def perform_opportunity_update(info: graphene.ResolveInfo, **kwargs) -> Opportun
 
     opportunity_id = kwargs.get("opportunity_id")
     title = kwargs.get("title", None)
-    abstract = kwargs.get("abstract")
-    content  = kwargs.get("content")
-    category = kwargs.get("category")
+    abstract = kwargs.get("abstract", None)
+    content  = kwargs.get("content", None)
+    category = kwargs.get("category", None)
 
     opportunity = get_opportunity_by_id(str(opportunity_id))
 
