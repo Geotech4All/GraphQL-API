@@ -46,9 +46,9 @@ def perform_post_update(info:graphene.ResolveInfo, **kwargs: Dict[PostCoreInputs
     if kwargs.get("title", None): post.title = kwargs.get("title")
     if kwargs.get('abstract', None): post.abstract = kwargs.get('abstract')
     if kwargs.get('body', None): post.body = kwargs.get('body')
-    cover_photo_id = str(kwargs.get("cover_photo_id"))
-    if cover_photo_id:
-        image = get_image(cover_photo_id)
+    cover_photo_id = kwargs.get("cover_photo_id", None)
+    if cover_photo_id is not None:
+        image = get_image(str(cover_photo_id))
         post.cover_photo = image
     post.save()
     return post
@@ -63,8 +63,8 @@ def perform_post_create(info:graphene.ResolveInfo, **kwargs: Dict[PostCoreInputs
     if not (staff.can_create_post or staff.user.is_superuser):
         raise GraphQLError("You are not authorised to create posts")
 
-    cover_photo_id = str(kwargs.get("cover_photo_id"))
-    image = get_image(cover_photo_id) if cover_photo_id else None;
+    cover_photo_id = kwargs.get("cover_photo_id", None)
+    image = get_image(str(cover_photo_id)) if cover_photo_id is not None else None;
     post: Post = Post.objects.create(
         title=kwargs.get('title'),
         body=kwargs.get('body'),
