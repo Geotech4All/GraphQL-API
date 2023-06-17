@@ -1,48 +1,12 @@
 from django.contrib.auth import get_user_model
-from cloudinary_storage.storage import RawMediaCloudinaryStorage
 from django.db import models
 
 from assets.models import File, Image
+from common.models import Organization
 
 User = get_user_model()
 USER_PLACEHOLDER_IMAGE = "https://cdn.pixabay.com/photo/2018/11/13/21/43/avatar-3814049_960_720.png"
 LOGO_PLACEHOLDER = "https://www.pngkey.com/png/detail/233-2332677_image-500580-placeholder-transparent.png"
-
-class Address(models.Model):
-    """
-    This will mainly refer to the address of an organization or establishment,
-    but can be used as a regular address as well.
-    """
-    city = models.CharField(max_length=255)
-    country = models.CharField(max_length=255)
-    state = models.CharField(max_length=255)
-    address = models.CharField(max_length=255)
-    zip_code = models.CharField(max_length=20)
-    date_added = models.DateTimeField(auto_now_add=True)
-    last_updated = models.DateTimeField(auto_now=True)
-
-    def __str__(self) -> str:
-        return f"{self.pk} - {self.address}"
-
-
-class Organization(models.Model):
-    """
-    This as of the time of writing, mostly refers to the organisers of an event.
-    """
-    name = models.CharField(max_length=255)
-    address = models.ForeignKey(Address, on_delete=models.PROTECT)
-    description = models.CharField(max_length=400, null=True)
-    logo = models.ImageField(upload_to="images/organizations", null=True)
-    email = models.EmailField(null=True, blank=True, max_length=255)
-    phone = models.CharField(max_length=20, null=True, blank=True)
-
-    def __str__(self) -> str:
-        return f"{self.name}"
-
-    def get_logo_url(self):
-        if self.logo and hasattr(self.logo, 'url'):
-            return self.logo.url
-        return LOGO_PLACEHOLDER
 
 
 class Guest(models.Model):
@@ -76,6 +40,10 @@ class Podcast(models.Model):
     date_added = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
 
+    #TODO: Add podcast scheduled and url
+    # scheduled = models.DateTimeField(null=True)
+    # url = models.URLField(null=True)
+
     class Meta:
         ordering = ["date_added", "last_updated"]
 
@@ -100,29 +68,3 @@ class Host(models.Model):
 
     class Meta:
         ordering = ("user", "date_added")
-
-
-class Event(models.Model):
-    organizer = models.ForeignKey(Organization, on_delete=models.PROTECT, null=True, blank=True)
-    title = models.CharField(max_length=255)
-    description = models.TextField(max_length=700, help_text="what's this event about")
-    date = models.DateField(null=True, blank=True)
-    venue = models.ForeignKey(Address, on_delete=models.PROTECT, null=True, blank=True)
-
-    def __str__(self) -> str:
-        return f"{self.pk} - {self.title}"
-
-
-class EventImage(models.Model):
-    event = models.ForeignKey(Event, on_delete=models.CASCADE)
-    image = models.ImageField(upload_to="images/events")
-    description = models.CharField(max_length=255, help_text="what's in this image", null=True, blank=True)
-
-    def __str__(self) -> str:
-        return f"{self.pk} - Image:{self.description}"
-
-    def get_image_url(self):
-        if hasattr(self.image, 'url'):
-            return self.image.url
-        return None
-

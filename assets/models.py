@@ -83,3 +83,7 @@ class Tag(models.Model):
     title = models.CharField(max_length=255, unique=True)
     description = models.CharField(max_length=500, null=True)
     category = models.CharField(max_length=255)
+
+
+    def __str__(self) -> str:
+        return f"{self.title} - {self.category.upper()}"

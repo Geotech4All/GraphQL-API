@@ -57,7 +57,8 @@ INSTALLED_APPS = [
     "blog",
     "podcast",
     "assets",
-    "opportunities"
+    "opportunities",
+    "common"
 ]
 
 AUTH_USER_MODEL = 'users.CustomUser'

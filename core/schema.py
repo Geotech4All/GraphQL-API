@@ -1,6 +1,8 @@
 import graphene
 from assets.graphql.mutation import AssetMutations
 from assets.graphql.query import AssetsQuery
+from common.graphql.mutation import CommonMutation
+from common.graphql.queries import CommonQueries
 from opportunities.graphql.mutations import OpportunityMutations
 from opportunities.graphql.queries import OpportunityQueries
 from users.graphql.query import UsersQuery
@@ -16,6 +18,7 @@ class Query(
     BlogQuery,
     PodcastQuery,
     AssetsQuery,
+    CommonQueries,
     OpportunityQueries,
     graphene.ObjectType):
     pass
@@ -25,6 +28,7 @@ class Mutation(
         BlogMutations,
         PodcastMutations,
         AssetMutations,
+        CommonMutation,
         OpportunityMutations,
         graphene.ObjectType):
     pass

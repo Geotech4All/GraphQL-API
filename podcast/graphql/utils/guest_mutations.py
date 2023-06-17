@@ -4,7 +4,8 @@ Contains all mutation functions and methods for a Guest
 import graphene
 from podcast.models import Guest
 from graphql import GraphQLError
-from podcast.graphql.utils.general import validate_staff, get_organization, get_guest
+from podcast.graphql.utils.general import validate_staff, get_guest
+from common.utils import get_organization
 
 
 def perform_guest_update(info:graphene.ResolveInfo, **kwargs) -> Guest:

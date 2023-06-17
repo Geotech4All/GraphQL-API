@@ -2,8 +2,8 @@ from django.db.models import QuerySet
 import graphene
 from graphql.error import GraphQLError
 from graphene_django.filter import DjangoFilterConnectionField
-from podcast.graphql.types import AddressNode, EventImageType, GuestType, PodcastType
-from podcast.models import Address, EventImage, Guest, Host, Podcast
+from podcast.graphql.types import GuestType, PodcastType
+from podcast.models import Guest, Host, Podcast
 from users.graphql.types import UserType
 
 
@@ -12,13 +12,9 @@ class PodcastQuery(graphene.ObjectType):
     get_podcast_by_id = graphene.Field(PodcastType, podcast_id=graphene.ID(required=True))
     previous_guests = DjangoFilterConnectionField(GuestType)
     most_listened_to_podcasts = DjangoFilterConnectionField(PodcastType)
-    all_event_images = graphene.List(EventImageType)
     get_guest_by_id = graphene.Field(
         GuestType,
         guest_id=graphene.ID(required=True))
-    get_address_by_id = graphene.Field(
-        AddressNode,
-        address_id=graphene.ID(required=True))
     recent_hosts = graphene.List(UserType)
 
     def resolve_all_podcasts(root, info, **kwargs):
@@ -38,18 +34,6 @@ class PodcastQuery(graphene.ObjectType):
 
     def resolve_most_listened_to_podcasts(root, info, **kwargs):
         return Podcast.objects.all().order_by("-listens")
-
-    def resolve_all_event_images(root, info, **kwargs):
-        return EventImage.objects.all()
-
-
-    def resolve_get_address_by_id(root, info, **kwargs):
-        address_id = kwargs.get('address_id')
-        try:
-            return Address.objects.get(pk=address_id)
-        except Address.DoesNotExist:
-            raise GraphQLError("The specified address was not found")
-
 
     def resolve_get_guest_by_id(root, info, **kwargs):
         guest_id = kwargs.get("guest_id")

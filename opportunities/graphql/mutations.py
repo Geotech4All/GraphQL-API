@@ -19,9 +19,12 @@ class OpportunityCreateUpdateMutation(graphene.Mutation):
     class Arguments:
         opportunity_id = graphene.ID()
         title = graphene.String(required=True)
-        abstract = graphene.String()
         content = graphene.String()
-        category = graphene.String()
+        # Updates
+        description = graphene.String()
+        tag_ids = graphene.List(graphene.ID)
+        organization_id = graphene.ID()
+        location_id = graphene.ID()
 
     @classmethod
     @login_required

@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 import graphene
 from graphene_django import DjangoObjectType
-from podcast.models import Address, Event, EventImage, Host, Organization, Guest, Podcast
+from podcast.models import Host, Guest, Podcast
 from users.graphql.types import UserType
 
 User = get_user_model()
@@ -25,37 +25,6 @@ class HostType(DjangoObjectType):
     def resolve_host_id(self, _):
         if isinstance(self, Host):
             return self.pk
-        return None
-
-class AddressNode(DjangoObjectType):
-    """
-    Address graphql object type
-    """
-    class Meta:
-        model = Address
-        fields = (
-            "id",
-            "city",
-            "state",
-            "country",
-            "address",
-            "zip_code",
-            "date_added",
-            "last_updated")
-                   
-
-class OrganizationType(DjangoObjectType):
-    """
-    Organization graphql object type
-    """
-    logo = graphene.String()
-    class Meta:
-        model = Organization
-        fields = ("id", "name", "address", "description", "logo", "email", "phone")
-
-    def resolve_logo(self, info: graphene.ResolveInfo):
-        if isinstance(self, Organization):
-            return self.get_logo_url()
         return None
 
 
@@ -111,28 +80,4 @@ class PodcastType(DjangoObjectType):
     def resolve_podcast_id(self, _):
         if isinstance(self, Podcast):
             return getattr(self, "id")
-        return None
-
-
-class EventType(DjangoObjectType):
-    """
-    Event graphql object type
-    """
-    class Meta:
-        model = Event
-        fields = ("id", "organizer", "title", "description", "date", "venue")
-
-
-class EventImageType(DjangoObjectType):
-    """
-    EventImage graphql object type
-    """
-    image = graphene.String()
-    class Meta:
-        model = EventImage
-        fields = ("id", "description", "event")
-
-    def resolve_image(self, info: graphene.ResolveInfo):
-        if isinstance(self, EventImage):
-            return self.get_image_url()
         return None

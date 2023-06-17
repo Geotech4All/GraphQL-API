@@ -8,8 +8,8 @@ class OpportunityType(DjangoObjectType):
     opportunity_id = graphene.ID()
     class Meta:
         model = Opportunity
-        fields = ("title", "content", "abstract", "category", "date_added", "last_updated")
-        filter_fields = {"category__title": ["icontains", "exact", "istartswith"]}
+        fields = ("title", "content", "description", "tags", "date_added", "location", "last_updated")
+        filter_fields = {"tags__id": ["in"], "location__id": ["exact"]}
         interfaces = (graphene.relay.Node, )
 
 
