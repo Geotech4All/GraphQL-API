@@ -2,7 +2,6 @@ from django.db import models
 
 from assets.models import Tag
 from common.models import Location, Organization
-import opportunities
 
 
 class Opportunity(models.Model):
