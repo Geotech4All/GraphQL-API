@@ -18,7 +18,8 @@ def validate_and_return_staff(info: graphene.ResolveInfo) -> Staff:
         if info.context.user.is_superuser:
             staff = Staff.create_super_staff(info.context.user)
             return staff
-        raise GraphQLError("You do not have staff authorization and are not authorized to perfom this action")
+        else:
+            raise GraphQLError("You do not have staff authorization and are not authorized to perfom this action")
 
 staff_fields = [
         "can_create_post", "can_alter_post", "can_delete_post",
