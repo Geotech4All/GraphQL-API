@@ -31,5 +31,5 @@ def perform_organization_create(info: graphene.ResolveInfo, **kwargs) -> Organiz
     return Organization(
         name = kwargs.get("name"),
         description = kwargs.get("description"),
-        logo_id = get_image(str(kwargs.get("logo_id"))) if kwargs.get("logo_id") else None
+        logo = get_image(str(kwargs.get("logo_id"))) if kwargs.get("logo_id") else None
     )
