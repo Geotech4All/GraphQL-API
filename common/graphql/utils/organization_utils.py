@@ -28,7 +28,7 @@ def perform_organization_update(info: graphene.ResolveInfo, **kwargs) -> Organiz
 
 def perform_organization_create(info: graphene.ResolveInfo, **kwargs) -> Organization:
     validate_and_return_staff(info)
-    return Organization(
+    return Organization.objects.create(
         name = kwargs.get("name"),
         description = kwargs.get("description"),
         logo = get_image(str(kwargs.get("logo_id"))) if kwargs.get("logo_id") else None
