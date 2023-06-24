@@ -31,7 +31,7 @@ def perform_opportunity_create(info: graphene.ResolveInfo, **kwargs)-> Opportuni
             description = kwargs.get("description"),
         )
 
-    if tag_ids: opportunity.tags = Tag.objects.filter(tags__id__in=tag_ids)
+    if tag_ids: opportunity.tags = Tag.objects.filter(pk__in=tag_ids)
     if organization_id: opportunity.organization = get_organization(organization_id)
     if location_id: opportunity.location = get_location(location_id)
 

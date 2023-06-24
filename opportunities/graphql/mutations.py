@@ -17,12 +17,12 @@ class OpportunityCreateUpdateMutation(graphene.Mutation):
     errors = graphene.List(ErrorType)
 
     class Arguments:
-        opportunity_id = graphene.ID()
         title = graphene.String(required=True)
         content = graphene.String()
+        opportunity_id = graphene.ID()
         # Updates
-        description = graphene.String()
         tag_ids = graphene.List(graphene.ID)
+        description = graphene.String()
         organization_id = graphene.ID()
         location_id = graphene.ID()
 
