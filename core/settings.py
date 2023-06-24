@@ -30,11 +30,7 @@ DEBUG = config("DEBUG") == "True"
 SUPER_USER_CODE = str(config("SUPER_USER_CODE"))
 
 # ALLOWED_HOSTS = []
-ALLOWED_HOSTS = [
-    "*",
-    "localhost:3000",
-    "graphql-api-production-4532.up.railway.app",
-]
+ALLOWED_HOSTS = list(str(config("ALLOWED_HOSTS")).split(","))
 
 # Application definition
 
