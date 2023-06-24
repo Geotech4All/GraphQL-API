@@ -12,7 +12,7 @@ class OrganizationType(DjangoObjectType):
         filter_fields = {"name": ["exact", "iexact"]}
         interfaces = (graphene.relay.Node, )
 
-    def resolve_organization_id(self):
+    def resolve_organization_id(self, _):
         if isinstance(self, Organization):
             return self.pk
         return None
@@ -26,7 +26,7 @@ class LocationType(DjangoObjectType):
         filter_fields = {"country": ["exact", "iexact"]}
         interfaces = (graphene.relay.Node, )
 
-    def resolve_location_id(self):
+    def resolve_location_id(self, _):
         if isinstance(self, Location):
             return self.pk
         return None
