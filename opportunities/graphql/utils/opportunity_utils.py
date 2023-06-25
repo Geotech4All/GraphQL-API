@@ -31,9 +31,7 @@ def perform_opportunity_create(info: graphene.ResolveInfo, **kwargs)-> Opportuni
             description = kwargs.get("description"),
         )
 
-    if tag_ids:
-        for tag in Tag.objects.filter(id__in=tag_ids):
-            opportunity.tags.add(tag)
+    if tag_ids: opportunity.tags.add(*Tag.objects.filter(id__in=tag_ids))
     if organization_id: opportunity.organization = get_organization(organization_id)
     if location_id: opportunity.location = get_location(location_id)
 
@@ -64,9 +62,7 @@ def perform_opportunity_update(info: graphene.ResolveInfo, **kwargs) -> Opportun
 
     # Updates
     if description: opportunity.description = description
-    if tag_ids:
-        for tag in Tag.objects.filter(id__in=tag_ids):
-            opportunity.tags.add(tag)
+    if tag_ids: opportunity.tags.add(*Tag.objects.filter(id__in=tag_ids))
     if organization_id: opportunity.organization = get_organization(organization_id)
     if location_id: opportunity.location = get_location(location_id)
     opportunity.save()
