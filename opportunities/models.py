@@ -17,7 +17,7 @@ class Opportunity(models.Model):
     description = models.CharField(null=True, max_length=1000)
     tags = models.ManyToManyField(Tag, related_name="opportunities")
     organization = models.ForeignKey(Organization, blank=True, on_delete=models.SET_NULL, null=True)
-    location = models.ManyToManyField(Location, blank=True)
+    location = models.ForeignKey(Location, blank=True, null=True, on_delete=models.SET_NULL)
 
     def __str__(self) -> str:
         return f"{self.title} - {self.date_added.date()}"
