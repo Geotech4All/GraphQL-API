@@ -12,7 +12,7 @@ class OpportunityType(DjangoObjectType):
 
     class Meta:
         model = Opportunity
-        fields = ("title", "content", "description", "date_added", "location", "last_updated")
+        fields = ("title", "content", "description", "organization", "date_added", "location", "last_updated")
         filter_fields = {"tags__id": ["in"], "location__id": ["exact"]}
         interfaces = (graphene.relay.Node, )
 
