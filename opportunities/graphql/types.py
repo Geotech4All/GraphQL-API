@@ -20,3 +20,9 @@ class OpportunityType(DjangoObjectType):
         if isinstance(self, Opportunity):
             return self.pk
         return None
+
+    def resolve_tags(self, _):
+        if isinstance(self, Opportunity):
+            print(self.tags)
+            return self.tags
+        return []
