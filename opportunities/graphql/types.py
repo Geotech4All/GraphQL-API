@@ -25,4 +25,4 @@ class OpportunityType(DjangoObjectType):
         if isinstance(self, Opportunity):
             print(self.tags)
             return self.tags
-        return []
+        return None
