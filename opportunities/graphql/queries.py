@@ -12,7 +12,7 @@ class OpportunityDates(graphene.Enum):
     ThisWeek = datetime.today() - timedelta(days=7)
     ThisMonth = datetime.today() - timedelta(days=30)
     ThisYear = datetime.today() - timedelta(days=365)
-    AnyTime = None
+    AnyTime = datetime.today()
 
 class OpportunityQueries(graphene.ObjectType):
     opportunities = DjangoFilterConnectionField(OpportunityType, date_posted=OpportunityDates())
